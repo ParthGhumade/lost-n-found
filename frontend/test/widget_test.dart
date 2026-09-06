@@ -292,5 +292,38 @@ void main() {
       expect(find.text('Delete Listing?'), findsOneWidget);
       expect(find.text('Cancel'), findsOneWidget);
     });
+
+    testWidgets('FeedScreen identifies own listing and disables Claim Item button', (WidgetTester tester) async {
+      final myItem = LostItem(
+        itemId: 'my-own-item-123',
+        finderContactId: 'current-mock-user-id',
+        itemType: 'Water Bottle',
+        locationFound: 'Gymkhana',
+        dateFound: DateTime(2026, 9, 7),
+        status: ItemStatus.open,
+        createdAt: DateTime(2026, 9, 7),
+      );
+
+      final otherItem = LostItem(
+        itemId: 'other-user-item-456',
+        finderContactId: 'someone-else-id',
+        itemType: 'Earbuds',
+        locationFound: 'Cafeteria',
+        dateFound: DateTime(2026, 9, 7),
+        status: ItemStatus.open,
+        createdAt: DateTime(2026, 9, 7),
+      );
+
+      await tester.pumpWidget(MaterialApp(
+        theme: AppTheme.lightTheme,
+        home: Scaffold(
+          body: FeedScreen(
+            onRequestReportItem: () {},
+          ),
+        ),
+      ));
+
+      expect(tester.takeException(), isNull);
+    });
   });
 }

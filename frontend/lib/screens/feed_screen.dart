@@ -404,31 +404,81 @@ class _FeedScreenState extends State<FeedScreen> {
           const SizedBox(height: 16),
 
           // Bottom Action
-          Align(
-            alignment: Alignment.centerRight,
-            child: FilledButton.icon(
-              onPressed: () {
-                ClaimSheet.show(
-                  context,
-                  item: item,
-                  onClaimSubmitted: () {
-                    _fetchItems();
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(
-                        content: Text('Claim submitted! You can track it under "My Claims".'),
-                        backgroundColor: AppTheme.success,
+          Builder(
+            builder: (context) {
+              final isOwnListing = item.finderContactId != null &&
+                  item.finderContactId == apiService.currentUserId;
+
+              if (isOwnListing) {
+                return Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    Container(
+                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      decoration: BoxDecoration(
+                        color: AppTheme.primary.withValues(alpha: 0.08),
+                        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                        border: Border.all(color: AppTheme.primary.withValues(alpha: 0.2)),
                       ),
+                      child: const Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(Icons.person_pin_circle_outlined, size: 14, color: AppTheme.primary),
+                          SizedBox(width: 4),
+                          Text(
+                            'Your Listing',
+                            style: TextStyle(
+                              fontSize: 12,
+                              fontWeight: FontWeight.w600,
+                              color: AppTheme.primary,
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Tooltip(
+                      message: 'You cannot claim an item you reported as found',
+                      child: OutlinedButton.icon(
+                        onPressed: null,
+                        icon: const Icon(Icons.block, size: 16),
+                        label: const Text('Your Listing'),
+                        style: OutlinedButton.styleFrom(
+                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                          visualDensity: VisualDensity.compact,
+                        ),
+                      ),
+                    ),
+                  ],
+                );
+              }
+
+              return Align(
+                alignment: Alignment.centerRight,
+                child: FilledButton.icon(
+                  onPressed: () {
+                    ClaimSheet.show(
+                      context,
+                      item: item,
+                      onClaimSubmitted: () {
+                        _fetchItems();
+                        ScaffoldMessenger.of(context).showSnackBar(
+                          const SnackBar(
+                            content: Text('Claim submitted! You can track it under "My Claims".'),
+                            backgroundColor: AppTheme.success,
+                          ),
+                        );
+                      },
                     );
                   },
-                );
-              },
-              icon: const Icon(Icons.verified_outlined, size: 16),
-              label: const Text('Claim Item'),
-              style: FilledButton.styleFrom(
-                padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-                visualDensity: VisualDensity.compact,
-              ),
-            ),
+                  icon: const Icon(Icons.verified_outlined, size: 16),
+                  label: const Text('Claim Item'),
+                  style: FilledButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+                    visualDensity: VisualDensity.compact,
+                  ),
+                ),
+              );
+            },
           ),
         ],
       ),

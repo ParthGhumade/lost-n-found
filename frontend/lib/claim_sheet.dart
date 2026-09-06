@@ -65,10 +65,15 @@ class _ClaimSheetState extends State<ClaimSheet> {
       }
     } catch (e) {
       if (mounted) {
+        final errStr = e.toString();
         setState(() {
-          _errorMessage = e.toString().contains('409') || e.toString().contains('duplicate')
-              ? 'You already have an active claim for this item.'
-              : 'Failed to submit claim: $e';
+          if (errStr.contains('own listing') || errStr.contains('violates row-level security')) {
+            _errorMessage = 'You cannot claim an item you listed.';
+          } else if (errStr.contains('409') || errStr.contains('duplicate')) {
+            _errorMessage = 'You already have an active claim for this item.';
+          } else {
+            _errorMessage = 'Failed to submit claim: $e';
+          }
         });
       }
     } finally {

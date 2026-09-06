@@ -102,7 +102,7 @@ class ApiService {
   }) async {
     var query = _client
         .from(SupabaseConfig.tableItems)
-        .select('item_id, item_type, location_found, date_found, created_at, status')
+        .select('item_id, finder_contact_id, item_type, location_found, date_found, created_at, status')
         .eq('status', 'open');
 
     if (categoryFilter != null && categoryFilter.isNotEmpty && categoryFilter != 'All') {
@@ -207,6 +207,17 @@ class ApiService {
 
     if (description.trim().length < 10) {
       throw const FormatException('Claim description must be at least 10 characters.');
+    }
+
+    // Verify user is not claiming their own item
+    final itemRes = await _client
+        .from(SupabaseConfig.tableItems)
+        .select('finder_contact_id')
+        .eq('item_id', itemId)
+        .maybeSingle();
+
+    if (itemRes != null && itemRes['finder_contact_id'] == uid) {
+      throw const FormatException('You cannot submit a claim on your own listing.');
     }
 
     final data = await _client
