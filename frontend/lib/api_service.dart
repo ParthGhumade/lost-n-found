@@ -1,5 +1,6 @@
 import 'dart:typed_data';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'input_sanitizer.dart';
 import 'models.dart';
 import 'supabase_config.dart';
 
@@ -283,21 +284,27 @@ class ApiService {
   // ==========================================
 
   /// 5.1 Upload Item Image to Private Bucket (Finder)
+  /// Sanitizes filename and enforces cryptographic uniqueness to prevent collisions.
   Future<String> uploadItemImage({
     required Uint8List bytes,
     required String fileExtension,
+    String? originalFileName,
   }) async {
     final uid = currentUserId;
     if (uid == null) throw const AuthException('User is not authenticated');
 
-    final timestamp = DateTime.now().millisecondsSinceEpoch;
-    final path = '$uid/${timestamp}_item.$fileExtension';
+    final cleanExt = InputSanitizer.sanitizeFileExtension(fileExtension);
+    final path = InputSanitizer.buildUniqueStoragePath(
+      userId: uid,
+      originalFileName: originalFileName,
+      rawExtension: cleanExt,
+    );
 
     await _client.storage.from(SupabaseConfig.storageBucket).uploadBinary(
           path,
           bytes,
           fileOptions: FileOptions(
-            contentType: 'image/$fileExtension',
+            contentType: 'image/$cleanExt',
             upsert: false,
           ),
         );
