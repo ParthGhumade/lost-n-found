@@ -18,7 +18,7 @@ void main() {
       home: const LoginPage(),
     ));
     expect(find.text('Campus Lost & Found'), findsOneWidget);
-    expect(find.text('New Student? Create Account (Signup)'), findsOneWidget);
+    expect(find.text('New Student? Create Account'), findsOneWidget);
     expect(find.text('Sign In to Campus Portal'), findsOneWidget);
   });
 
@@ -256,6 +256,41 @@ void main() {
 
       expect(tester.takeException(), isNull);
       expect(find.text('My Reported Items'), findsOneWidget);
+    });
+
+    testWidgets('Delete listing button tooltip and icon render', (WidgetTester tester) async {
+      final sampleItem = LostItem(
+        itemId: 'item-delete-test-123',
+        finderContactId: 'finder-123',
+        itemType: 'Electronics - lo',
+        locationFound: 'Central Library',
+        dateFound: DateTime(2026, 9, 7),
+        imagePath: 'sample/path.jpg',
+        status: ItemStatus.open,
+        createdAt: DateTime(2026, 9, 7),
+        claimsCount: 0,
+      );
+
+      await tester.pumpWidget(MaterialApp(
+        theme: AppTheme.lightTheme,
+        home: Scaffold(
+          body: MyListingsScreen(
+            initialListings: [sampleItem],
+          ),
+        ),
+      ));
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('Electronics - lo'), findsOneWidget);
+      expect(find.text('Delete'), findsOneWidget);
+      expect(find.byTooltip('Delete Listing'), findsOneWidget);
+
+      // Tap Delete button and verify confirmation dialog
+      await tester.tap(find.text('Delete'));
+      await tester.pumpAndSettle();
+
+      expect(find.text('Delete Listing?'), findsOneWidget);
+      expect(find.text('Cancel'), findsOneWidget);
     });
   });
 }

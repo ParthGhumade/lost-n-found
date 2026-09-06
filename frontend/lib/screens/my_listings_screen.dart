@@ -9,8 +9,13 @@ import '../widgets/mutual_contact_modal.dart';
 
 class MyListingsScreen extends StatefulWidget {
   final VoidCallback? onRequestReportItem;
+  final List<LostItem>? initialListings;
 
-  const MyListingsScreen({super.key, this.onRequestReportItem});
+  const MyListingsScreen({
+    super.key,
+    this.onRequestReportItem,
+    this.initialListings,
+  });
 
   @override
   State<MyListingsScreen> createState() => _MyListingsScreenState();
@@ -24,6 +29,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
   final Map<String, List<ItemClaim>> _itemClaimsCache = {};
   final Map<String, bool> _expandedItems = {};
   final Map<String, bool> _loadingClaims = {};
+  final Set<String> _deletingItemIds = {};
 
   RealtimeChannel? _claimsChannel;
   RealtimeChannel? _itemsChannel;
@@ -32,7 +38,12 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
   @override
   void initState() {
     super.initState();
-    _fetchListings();
+    if (widget.initialListings != null) {
+      _listings = List.from(widget.initialListings!);
+      _isLoading = false;
+    } else {
+      _fetchListings();
+    }
     _subscribeToRealtime();
   }
 
@@ -180,15 +191,75 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
       }
     } catch (e) {
       if (mounted) {
-        setState(() {
-          _checkingClaimId = null;
-        });
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text('Failed to check claim status: $e'),
+            content: Text('Failed to update claim: $e'),
             backgroundColor: AppTheme.danger,
           ),
         );
+      }
+    }
+  }
+
+  Future<void> _confirmDeleteItem(LostItem item) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (dialogCtx) => AlertDialog(
+        title: const Text('Delete Listing?'),
+        content: Text(
+          'Are you sure you want to delete "${item.itemType}" found at "${item.locationFound}"?\n\n'
+          'This will permanently remove the listing and any claims received for it.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.of(dialogCtx).pop(false),
+            child: const Text('Cancel'),
+          ),
+          FilledButton(
+            style: FilledButton.styleFrom(
+              backgroundColor: AppTheme.danger,
+              foregroundColor: Colors.white,
+            ),
+            onPressed: () => Navigator.of(dialogCtx).pop(true),
+            child: const Text('Delete Listing'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed == true && mounted) {
+      setState(() {
+        _deletingItemIds.add(item.itemId);
+      });
+
+      try {
+        await apiService.deleteItemListing(item.itemId, imagePath: item.imagePath);
+        if (mounted) {
+          setState(() {
+            _listings.removeWhere((l) => l.itemId == item.itemId);
+            _deletingItemIds.remove(item.itemId);
+            _expandedItems.remove(item.itemId);
+            _itemClaimsCache.remove(item.itemId);
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Listing deleted successfully.'),
+              backgroundColor: AppTheme.success,
+            ),
+          );
+        }
+      } catch (e) {
+        if (mounted) {
+          setState(() {
+            _deletingItemIds.remove(item.itemId);
+          });
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Failed to delete listing: $e'),
+              backgroundColor: AppTheme.danger,
+            ),
+          );
+        }
       }
     }
   }
@@ -412,29 +483,51 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
                       ),
                     ),
                     const SizedBox(width: 8),
-                    Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
-                      decoration: BoxDecoration(
-                        color: item.status == ItemStatus.returned
-                            ? AppTheme.successBg
-                            : AppTheme.surfaceMuted,
-                        borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-                        border: Border.all(
-                          color: item.status == ItemStatus.returned
-                              ? AppTheme.success.withOpacity(0.3)
-                              : AppTheme.border,
+                    Row(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        Container(
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 3),
+                          decoration: BoxDecoration(
+                            color: item.status == ItemStatus.returned
+                                ? AppTheme.successBg
+                                : AppTheme.surfaceMuted,
+                            borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                            border: Border.all(
+                              color: item.status == ItemStatus.returned
+                                  ? AppTheme.success.withOpacity(0.3)
+                                  : AppTheme.border,
+                            ),
+                          ),
+                          child: Text(
+                            item.status == ItemStatus.returned ? 'Returned' : 'Active Listing',
+                            style: TextStyle(
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: item.status == ItemStatus.returned
+                                  ? AppTheme.success
+                                  : AppTheme.textSecondary,
+                            ),
+                          ),
                         ),
-                      ),
-                      child: Text(
-                        item.status == ItemStatus.returned ? 'Returned' : 'Active Listing',
-                        style: TextStyle(
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: item.status == ItemStatus.returned
-                              ? AppTheme.success
-                              : AppTheme.textSecondary,
-                        ),
-                      ),
+                        const SizedBox(width: 6),
+                        if (_deletingItemIds.contains(item.itemId))
+                          const SizedBox(
+                            width: 20,
+                            height: 20,
+                            child: CircularProgressIndicator(strokeWidth: 2),
+                          )
+                        else
+                          IconButton(
+                            icon: const Icon(Icons.delete_outline, size: 20, color: AppTheme.danger),
+                            tooltip: 'Delete Listing',
+                            visualDensity: VisualDensity.compact,
+                            padding: EdgeInsets.zero,
+                            constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                            splashRadius: 18,
+                            onPressed: () => _confirmDeleteItem(item),
+                          ),
+                      ],
                     ),
                   ],
                 ),
@@ -483,6 +576,27 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
                       ),
                     ),
                     const SizedBox(width: 8),
+                    if (_deletingItemIds.contains(item.itemId))
+                      const Padding(
+                        padding: EdgeInsets.symmetric(horizontal: 12),
+                        child: SizedBox(
+                          width: 16,
+                          height: 16,
+                          child: CircularProgressIndicator(strokeWidth: 2),
+                        ),
+                      )
+                    else
+                      TextButton.icon(
+                        style: TextButton.styleFrom(
+                          foregroundColor: AppTheme.danger,
+                          padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+                          visualDensity: VisualDensity.compact,
+                        ),
+                        onPressed: () => _confirmDeleteItem(item),
+                        icon: const Icon(Icons.delete_outline, size: 16),
+                        label: const Text('Delete'),
+                      ),
+                    const SizedBox(width: 4),
                     if (isExpanded) ...[
                       IconButton(
                         icon: const Icon(Icons.refresh, size: 18),

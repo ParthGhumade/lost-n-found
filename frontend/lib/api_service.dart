@@ -171,6 +171,28 @@ class ApiService {
     return (data as List).map((e) => LostItem.fromJson(e as Map<String, dynamic>)).toList();
   }
 
+  /// 3.5 Delete Item Listing (Finder)
+  Future<void> deleteItemListing(String itemId, {String? imagePath}) async {
+    final uid = currentUserId;
+    if (uid == null) throw const AuthException('User is not authenticated');
+
+    // 1. Delete the item record (claims will cascade-delete automatically)
+    await _client
+        .from(SupabaseConfig.tableItems)
+        .delete()
+        .eq('item_id', itemId)
+        .eq('finder_contact_id', uid);
+
+    // 2. If an image path is present, attempt to delete it from storage
+    if (imagePath != null && imagePath.isNotEmpty) {
+      try {
+        await _client.storage.from(SupabaseConfig.storageBucket).remove([imagePath]);
+      } catch (_) {
+        // Storage deletion failure should not block DB deletion
+      }
+    }
+  }
+
   // ==========================================
   // 3. CLAIMS APIS (CLAIMANT & FINDER)
   // ==========================================

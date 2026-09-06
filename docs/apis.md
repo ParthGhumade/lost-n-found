@@ -145,6 +145,12 @@ Lists active, uncollected items. **Strict privacy**: `image_path` is omitted fro
 - **Auth**: Authenticated user
 - **Success Response (`200 OK`)**: List of items posted by the current user along with count of received claims.
 
+### 3.5 Delete Item Listing (Finder)
+Allows the finder who posted an item to permanently delete the listing and its storage image. All associated claims cascade-delete automatically.
+- **Method & Endpoint**: `DELETE /rest/v1/items?item_id=eq.{item_id}&finder_contact_id=eq.{user_id}`
+- **Auth**: Authenticated user (`finder_contact_id = auth.uid()`)
+- **Success Response (`204 No Content`)**: Item deleted successfully.
+
 ---
 
 ## 4. Claims API (`claims`)
