@@ -8,6 +8,7 @@ import 'package:frontend/screens/feed_screen.dart';
 import 'package:frontend/screens/my_claims_screen.dart';
 import 'package:frontend/screens/profile_screen.dart';
 import 'package:frontend/screens/report_item_screen.dart';
+import 'package:frontend/widgets/mutual_contact_modal.dart';
 
 void main() {
   testWidgets('App smoke test loads LoginPage with campus branding', (WidgetTester tester) async {
@@ -67,6 +68,14 @@ void main() {
       final claim = ItemClaim.fromJson(json);
       expect(claim.status, ClaimStatus.claimVerified);
       expect(claim.status.displayLabel, 'Verified (Photo Ready)');
+      expect(claim.claimantAgreedPhoto, false);
+
+      final jsonWithAgreed = {
+        ...json,
+        'claimant_agreed_photo': true,
+      };
+      final claimAgreed = ItemClaim.fromJson(jsonWithAgreed);
+      expect(claimAgreed.claimantAgreedPhoto, true);
     });
 
     test('MutualContactExchange deserialization', () {
@@ -223,6 +232,21 @@ void main() {
       expect(find.text('Profile'), findsOneWidget);
       expect(find.text('Alex Student'), findsOneWidget);
       expect(find.text('Sign Out'), findsOneWidget);
+    });
+
+    testWidgets('MutualContactModal renders initial contact exchange header', (WidgetTester tester) async {
+      await tester.pumpWidget(MaterialApp(
+        theme: AppTheme.lightTheme,
+        home: const Scaffold(
+          body: MutualContactModal(
+            claimId: 'test-claim-id',
+            viewerRole: ContactViewerRole.finder,
+          ),
+        ),
+      ));
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('Contact Exchange'), findsOneWidget);
     });
   });
 }

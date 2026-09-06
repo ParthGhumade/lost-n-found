@@ -17,6 +17,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
   List<LostItem> _listings = [];
   bool _isLoading = true;
   String? _errorMessage;
+  String? _checkingClaimId;
   final Map<String, List<ItemClaim>> _itemClaimsCache = {};
   final Map<String, bool> _expandedItems = {};
   final Map<String, bool> _loadingClaims = {};
@@ -40,6 +41,13 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
           _listings = data;
           _isLoading = false;
         });
+
+        // Re-fetch claims for any currently expanded items
+        for (final item in data) {
+          if (_expandedItems[item.itemId] == true) {
+            _fetchClaimsForItem(item.itemId, showLoading: false);
+          }
+        }
       }
     } catch (e) {
       if (mounted) {
@@ -51,36 +59,94 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
     }
   }
 
+  Future<void> _fetchClaimsForItem(String itemId, {bool showLoading = true}) async {
+    if (showLoading) {
+      setState(() {
+        _loadingClaims[itemId] = true;
+      });
+    }
+
+    try {
+      final claims = await apiService.listClaimsForItem(itemId);
+      if (mounted) {
+        setState(() {
+          _itemClaimsCache[itemId] = claims;
+          _loadingClaims[itemId] = false;
+        });
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _loadingClaims[itemId] = false;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('Failed to load claims: $e')),
+        );
+      }
+    }
+  }
+
   Future<void> _toggleItemExpansion(String itemId) async {
     final isExpanded = _expandedItems[itemId] ?? false;
     setState(() {
       _expandedItems[itemId] = !isExpanded;
     });
 
-    // Fetch if expanding and not yet cached (or previously returned empty — allow retry)
-    final cachedClaims = _itemClaimsCache[itemId];
-    if (!isExpanded && (cachedClaims == null || cachedClaims.isEmpty)) {
-      setState(() {
-        _loadingClaims[itemId] = true;
-      });
+    // Always fetch latest claims when expanding so finder sees up-to-date responses
+    if (!isExpanded) {
+      await _fetchClaimsForItem(itemId);
+    }
+  }
 
-      try {
-        final claims = await apiService.listClaimsForItem(itemId);
-        if (mounted) {
-          setState(() {
-            _itemClaimsCache[itemId] = claims;
-            _loadingClaims[itemId] = false;
-          });
-        }
-      } catch (e) {
-        if (mounted) {
-          setState(() {
-            _loadingClaims[itemId] = false;
-          });
+  Future<void> _checkClaimantDecision(String itemId, String claimId) async {
+    setState(() {
+      _checkingClaimId = claimId;
+    });
+
+    try {
+      final updatedClaim = await apiService.getClaim(claimId);
+      if (mounted) {
+        final currentList = _itemClaimsCache[itemId] ?? [];
+        final updatedList =
+            currentList.map((c) => c.claimId == claimId ? updatedClaim : c).toList();
+        setState(() {
+          _itemClaimsCache[itemId] = updatedList;
+          _checkingClaimId = null;
+        });
+
+        if (updatedClaim.status == ClaimStatus.closedByClaimant) {
           ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text('Failed to load claims: $e')),
+            const SnackBar(
+              content: Text('Claimant reviewed the photo and confirmed: "It\'s Not Mine".'),
+              backgroundColor: AppTheme.danger,
+            ),
+          );
+        } else if (updatedClaim.claimantAgreedPhoto) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Claimant confirmed: "It\'s Mine!" Contact exchange is now open.'),
+              backgroundColor: AppTheme.success,
+            ),
+          );
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(
+              content: Text('Claimant has not yet submitted a decision on the photo.'),
+            ),
           );
         }
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _checkingClaimId = null;
+        });
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(
+            content: Text('Failed to check claim status: $e'),
+            backgroundColor: AppTheme.danger,
+          ),
+        );
       }
     }
   }
@@ -375,6 +441,15 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
                       ),
                     ),
                     const SizedBox(width: 8),
+                    if (isExpanded) ...[
+                      IconButton(
+                        icon: const Icon(Icons.refresh, size: 18),
+                        tooltip: 'Refresh claims',
+                        visualDensity: VisualDensity.compact,
+                        onPressed: () => _fetchClaimsForItem(item.itemId),
+                      ),
+                      const SizedBox(width: 4),
+                    ],
                     TextButton.icon(
                       onPressed: () => _toggleItemExpansion(item.itemId),
                       icon: Icon(
@@ -463,7 +538,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
                 ),
               ),
               const SizedBox(width: 8),
-              _buildClaimStatusBadge(claim.status),
+              _buildClaimStatusBadge(claim),
             ],
           ),
           const SizedBox(height: 10),
@@ -511,45 +586,149 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
               ],
             ),
           ] else if (claim.status == ClaimStatus.claimVerified) ...[
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: AppTheme.successBg,
-                borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-                border: Border.all(color: AppTheme.success.withValues(alpha: 0.2)),
-              ),
-              child: const Row(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                children: [
-                  Icon(Icons.hourglass_top, color: AppTheme.success, size: 16),
-                  SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Verified — waiting for the claimant to review the photo and confirm.',
-                      style: TextStyle(color: AppTheme.success, fontSize: 12),
+            if (claim.claimantAgreedPhoto)
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppTheme.successBg,
+                  borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                  border: Border.all(color: AppTheme.success.withOpacity(0.2)),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Row(
+                      children: [
+                        Icon(Icons.check_circle_outline, color: AppTheme.success, size: 18),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Claimant Confirmed: "It\'s Mine!"',
+                            style: TextStyle(
+                              color: AppTheme.success,
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    const Text(
+                      'Both parties verified the match. You can now exchange contact information.',
+                      style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+                    ),
+                    const SizedBox(height: 10),
+                    FilledButton.icon(
+                      onPressed: () {
+                        MutualContactModal.show(
+                          context,
+                          claimId: claim.claimId,
+                          viewerRole: ContactViewerRole.finder,
+                          onCollected: () => _fetchListings(),
+                        );
+                      },
+                      icon: const Icon(Icons.handshake_outlined, size: 16),
+                      label: const Text('Contact Exchange'),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: AppTheme.success,
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+                        visualDensity: VisualDensity.compact,
+                      ),
+                    ),
+                  ],
+                ),
+              )
+            else
+              Container(
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: AppTheme.surfaceMuted,
+                  borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                  border: Border.all(color: AppTheme.border),
+                ),
+                child: Column(
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    const Row(
+                      children: [
+                        Icon(Icons.hourglass_top, color: AppTheme.warning, size: 16),
+                        SizedBox(width: 8),
+                        Expanded(
+                          child: Text(
+                            'Photo Revealed — Awaiting Claimant',
+                            style: TextStyle(
+                              fontWeight: FontWeight.bold,
+                              fontSize: 13,
+                              color: AppTheme.textPrimary,
+                            ),
+                          ),
+                        ),
+                      ],
+                    ),
+                    const SizedBox(height: 6),
+                    const Text(
+                      'You verified the description. Waiting for the claimant to review the photo and mark if it is theirs.',
+                      style: TextStyle(color: AppTheme.textSecondary, fontSize: 12),
                       softWrap: true,
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 10),
+                    OutlinedButton.icon(
+                      onPressed: _checkingClaimId == claim.claimId
+                          ? null
+                          : () => _checkClaimantDecision(item.itemId, claim.claimId),
+                      icon: _checkingClaimId == claim.claimId
+                          ? const SizedBox(
+                              width: 14,
+                              height: 14,
+                              child: CircularProgressIndicator(strokeWidth: 2),
+                            )
+                          : const Icon(Icons.sync, size: 16),
+                      label: Text(
+                        _checkingClaimId == claim.claimId
+                            ? 'Checking Status...'
+                            : 'Check Claimant Decision',
+                      ),
+                      style: OutlinedButton.styleFrom(
+                        visualDensity: VisualDensity.compact,
+                        padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
           ] else if (claim.status == ClaimStatus.closedByClaimant) ...[
             Container(
-              padding: const EdgeInsets.all(10),
+              padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
-                color: AppTheme.surfaceMuted,
+                color: AppTheme.dangerBg,
                 borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                border: Border.all(color: AppTheme.danger.withOpacity(0.2)),
               ),
               child: const Row(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
-                  Icon(Icons.cancel_outlined, color: AppTheme.textMuted, size: 16),
+                  Icon(Icons.cancel_outlined, color: AppTheme.danger, size: 18),
                   SizedBox(width: 8),
                   Expanded(
-                    child: Text(
-                      'Claimant viewed the photo and confirmed it was not their item.',
-                      style: TextStyle(color: AppTheme.textMuted, fontSize: 12),
-                      softWrap: true,
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        Text(
+                          'Claimant Confirmed: Not Mine',
+                          style: TextStyle(
+                            color: AppTheme.danger,
+                            fontWeight: FontWeight.bold,
+                            fontSize: 13,
+                          ),
+                        ),
+                        SizedBox(height: 4),
+                        Text(
+                          'The claimant viewed the photo and confirmed this is not their lost item. This claim has been closed.',
+                          style: TextStyle(color: AppTheme.textPrimary, fontSize: 12),
+                          softWrap: true,
+                        ),
+                      ],
                     ),
                   ),
                 ],
@@ -590,29 +769,37 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
     );
   }
 
-  Widget _buildClaimStatusBadge(ClaimStatus status) {
+  Widget _buildClaimStatusBadge(ItemClaim claim) {
     Color bg;
     Color fg;
-    String label = status.displayLabel;
+    String label;
 
-    switch (status) {
+    switch (claim.status) {
       case ClaimStatus.pending:
         bg = AppTheme.warningBg;
         fg = AppTheme.warning;
         label = 'Pending Review';
         break;
       case ClaimStatus.claimVerified:
-        bg = AppTheme.successBg;
-        fg = AppTheme.success;
-        label = 'Photo Revealed';
+        if (claim.claimantAgreedPhoto) {
+          bg = AppTheme.successBg;
+          fg = AppTheme.success;
+          label = 'Photo Confirmed';
+        } else {
+          bg = AppTheme.surfaceMuted;
+          fg = AppTheme.primary;
+          label = 'Photo Revealed';
+        }
         break;
       case ClaimStatus.claimRejected:
         bg = AppTheme.dangerBg;
         fg = AppTheme.danger;
+        label = 'Rejected';
         break;
       case ClaimStatus.closedByClaimant:
-        bg = AppTheme.surfaceMuted;
-        fg = AppTheme.textMuted;
+        bg = AppTheme.dangerBg;
+        fg = AppTheme.danger;
+        label = 'Not Their Item';
         break;
       case ClaimStatus.collected:
         bg = AppTheme.successBg;

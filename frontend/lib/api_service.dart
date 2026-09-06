@@ -225,6 +225,17 @@ class ApiService {
     return (data as List).map((e) => ItemClaim.fromJson(e as Map<String, dynamic>)).toList();
   }
 
+  /// 4.3b Get Single Claim Details (with claimant contacts)
+  Future<ItemClaim> getClaim(String claimId) async {
+    final data = await _client
+        .from(SupabaseConfig.tableClaims)
+        .select('*, contacts!claims_claimant_contact_id_fkey(contact_id, name, class, branch)')
+        .eq('claim_id', claimId)
+        .single();
+
+    return ItemClaim.fromJson(data);
+  }
+
   /// 4.4 Review Claim: Verify or Reject (Finder Action)
   Future<ItemClaim> reviewClaim({
     required String claimId,
@@ -262,11 +273,15 @@ class ApiService {
           .single();
       return ItemClaim.fromJson(data);
     } else {
-      // If confirmed "IT'S MINE", fetch current claim representation
+      // If confirmed "IT'S MINE", fetch current claim representation and set claimant_agreed_photo
       final data = await _client
           .from(SupabaseConfig.tableClaims)
-          .select()
+          .update({
+            'claimant_agreed_photo': true,
+            'updated_at': DateTime.now().toUtc().toIso8601String(),
+          })
           .eq('claim_id', claimId)
+          .select()
           .single();
       return ItemClaim.fromJson(data);
     }

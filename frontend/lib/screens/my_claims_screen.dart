@@ -281,7 +281,7 @@ class _MyClaimsScreenState extends State<MyClaimsScreen> {
               decoration: BoxDecoration(
                 color: AppTheme.successBg,
                 borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                border: Border.all(color: AppTheme.success.withValues(alpha: 0.2)),
+                border: Border.all(color: AppTheme.success.withOpacity(0.2)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -304,35 +304,59 @@ class _MyClaimsScreenState extends State<MyClaimsScreen> {
                     ],
                   ),
                   const SizedBox(height: 4),
-                  const Text(
-                    'Finder verified your description. Review the photo to confirm ownership.',
-                    style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
-                  ),
-                  const SizedBox(height: 12),
-                  FilledButton.icon(
-                    onPressed: () {
-                      PhotoReviewModal.show(
-                        context,
-                        claim: claim,
-                        onDecisionMade: () => _fetchClaims(),
-                        onShowContactExchange: (claimId) {
-                          _fetchClaims();
-                          MutualContactModal.show(
-                            context,
-                            claimId: claimId,
-                            viewerRole: ContactViewerRole.claimant,
-                            onCollected: () => _fetchClaims(),
-                          );
-                        },
-                      );
-                    },
-                    icon: const Icon(Icons.image_search_outlined, size: 18),
-                    label: const Text('Review Photo'),
-                    style: FilledButton.styleFrom(
-                      backgroundColor: AppTheme.success,
-                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                  if (claim.claimantAgreedPhoto) ...[
+                    const Text(
+                      'You confirmed this is your item. Reach out to the finder to coordinate.',
+                      style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
                     ),
-                  ),
+                    const SizedBox(height: 12),
+                    FilledButton.icon(
+                      onPressed: () {
+                        MutualContactModal.show(
+                          context,
+                          claimId: claim.claimId,
+                          viewerRole: ContactViewerRole.claimant,
+                          onCollected: () => _fetchClaims(),
+                        );
+                      },
+                      icon: const Icon(Icons.handshake_outlined, size: 18),
+                      label: const Text('Contact Exchange'),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: AppTheme.success,
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      ),
+                    ),
+                  ] else ...[
+                    const Text(
+                      'Finder verified your description. Review the photo to confirm ownership.',
+                      style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
+                    ),
+                    const SizedBox(height: 12),
+                    FilledButton.icon(
+                      onPressed: () {
+                        PhotoReviewModal.show(
+                          context,
+                          claim: claim,
+                          onDecisionMade: () => _fetchClaims(),
+                          onShowContactExchange: (claimId) {
+                            _fetchClaims();
+                            MutualContactModal.show(
+                              context,
+                              claimId: claimId,
+                              viewerRole: ContactViewerRole.claimant,
+                              onCollected: () => _fetchClaims(),
+                            );
+                          },
+                        );
+                      },
+                      icon: const Icon(Icons.image_search_outlined, size: 18),
+                      label: const Text('Review Photo'),
+                      style: FilledButton.styleFrom(
+                        backgroundColor: AppTheme.success,
+                        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                      ),
+                    ),
+                  ],
                 ],
               ),
             ),

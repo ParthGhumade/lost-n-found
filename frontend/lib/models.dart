@@ -182,6 +182,7 @@ class ItemClaim {
   final ClaimStatus status;
   final DateTime createdAt;
   final DateTime updatedAt;
+  final bool claimantAgreedPhoto;
   final LostItem? item;
   final ContactProfile? claimant;
 
@@ -193,6 +194,7 @@ class ItemClaim {
     required this.status,
     required this.createdAt,
     required this.updatedAt,
+    this.claimantAgreedPhoto = false,
     this.item,
     this.claimant,
   });
@@ -210,6 +212,7 @@ class ItemClaim {
       updatedAt: json['updated_at'] != null
           ? DateTime.tryParse(json['updated_at'] as String) ?? DateTime.now()
           : DateTime.now(),
+      claimantAgreedPhoto: json['claimant_agreed_photo'] as bool? ?? false,
       item: json['items'] is Map<String, dynamic>
           ? LostItem.fromJson(json['items'] as Map<String, dynamic>)
           : null,
@@ -226,6 +229,7 @@ class ItemClaim {
       'claimant_contact_id': claimantContactId,
       'claim_description': claimDescription,
       'status': status.toDbString(),
+      'claimant_agreed_photo': claimantAgreedPhoto,
     };
   }
 }
