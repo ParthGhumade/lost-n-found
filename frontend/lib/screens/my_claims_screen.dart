@@ -281,7 +281,7 @@ class _MyClaimsScreenState extends State<MyClaimsScreen> {
               decoration: BoxDecoration(
                 color: AppTheme.successBg,
                 borderRadius: BorderRadius.circular(AppTheme.radiusMd),
-                border: Border.all(color: AppTheme.success.withOpacity(0.2)),
+                border: Border.all(color: AppTheme.success.withValues(alpha: 0.2)),
               ),
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
@@ -309,72 +309,74 @@ class _MyClaimsScreenState extends State<MyClaimsScreen> {
                     style: TextStyle(fontSize: 12, color: AppTheme.textSecondary),
                   ),
                   const SizedBox(height: 12),
-                  Wrap(
-                    spacing: 8,
-                    runSpacing: 8,
-                    children: [
-                      FilledButton.icon(
-                        onPressed: () {
-                          PhotoReviewModal.show(
-                            context,
-                            claim: claim,
-                            onDecisionMade: () => _fetchClaims(),
-                            onShowContactExchange: (claimId) {
-                              _fetchClaims();
-                              MutualContactModal.show(
-                                context,
-                                claimId: claimId,
-                                onCollected: () => _fetchClaims(),
-                              );
-                            },
-                          );
-                        },
-                        icon: const Icon(Icons.image_search_outlined, size: 18),
-                        label: const Text('Review Photo'),
-                        style: FilledButton.styleFrom(
-                          backgroundColor: AppTheme.success,
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                        ),
-                      ),
-                      OutlinedButton.icon(
-                        onPressed: () {
+                  FilledButton.icon(
+                    onPressed: () {
+                      PhotoReviewModal.show(
+                        context,
+                        claim: claim,
+                        onDecisionMade: () => _fetchClaims(),
+                        onShowContactExchange: (claimId) {
+                          _fetchClaims();
                           MutualContactModal.show(
                             context,
-                            claimId: claim.claimId,
+                            claimId: claimId,
+                            viewerRole: ContactViewerRole.claimant,
                             onCollected: () => _fetchClaims(),
                           );
                         },
-                        icon: const Icon(Icons.handshake_outlined, size: 16),
-                        label: const Text('Contact'),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
-                        ),
-                      ),
-                    ],
+                      );
+                    },
+                    icon: const Icon(Icons.image_search_outlined, size: 18),
+                    label: const Text('Review Photo'),
+                    style: FilledButton.styleFrom(
+                      backgroundColor: AppTheme.success,
+                      padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+                    ),
                   ),
                 ],
               ),
             ),
           ] else if (isCollected) ...[
-            Container(
-              padding: const EdgeInsets.all(10),
-              decoration: BoxDecoration(
-                color: AppTheme.successBg,
-                borderRadius: BorderRadius.circular(AppTheme.radiusSm),
-              ),
-              child: const Row(
-                children: [
-                  Icon(Icons.task_alt, color: AppTheme.success, size: 16),
-                  SizedBox(width: 8),
-                  Expanded(
-                    child: Text(
-                      'Item returned and resolved.',
-                      style: TextStyle(color: AppTheme.success, fontWeight: FontWeight.w500, fontSize: 12),
-                      softWrap: true,
-                    ),
+            Wrap(
+              spacing: 8,
+              runSpacing: 8,
+              children: [
+                Container(
+                  padding: const EdgeInsets.all(10),
+                  decoration: BoxDecoration(
+                    color: AppTheme.successBg,
+                    borderRadius: BorderRadius.circular(AppTheme.radiusSm),
                   ),
-                ],
-              ),
+                  child: const Row(
+                    children: [
+                      Icon(Icons.task_alt, color: AppTheme.success, size: 16),
+                      SizedBox(width: 8),
+                      Expanded(
+                        child: Text(
+                          'Item returned and resolved.',
+                          style: TextStyle(color: AppTheme.success, fontWeight: FontWeight.w500, fontSize: 12),
+                          softWrap: true,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+                OutlinedButton.icon(
+                  onPressed: () {
+                    MutualContactModal.show(
+                      context,
+                      claimId: claim.claimId,
+                      viewerRole: ContactViewerRole.claimant,
+                      onCollected: () => _fetchClaims(),
+                    );
+                  },
+                  icon: const Icon(Icons.person_outlined, size: 16),
+                  label: const Text('View Finder Contact'),
+                  style: OutlinedButton.styleFrom(
+                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+                  ),
+                ),
+              ],
             ),
           ] else if (claim.status == ClaimStatus.claimRejected) ...[
             Container(

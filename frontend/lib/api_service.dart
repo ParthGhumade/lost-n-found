@@ -216,7 +216,9 @@ class ApiService {
   Future<List<ItemClaim>> listClaimsForItem(String itemId) async {
     final data = await _client
         .from(SupabaseConfig.tableClaims)
-        .select('*, contacts(contact_id, name, class, branch)')
+        // Use explicit FK hint to ensure PostgREST resolves the correct
+        // relationship between claims.claimant_contact_id -> contacts.contact_id
+        .select('*, contacts!claims_claimant_contact_id_fkey(contact_id, name, class, branch)')
         .eq('item_id', itemId)
         .order('created_at', ascending: false);
 

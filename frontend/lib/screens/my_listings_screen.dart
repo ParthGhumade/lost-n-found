@@ -57,7 +57,9 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
       _expandedItems[itemId] = !isExpanded;
     });
 
-    if (!isExpanded && !_itemClaimsCache.containsKey(itemId)) {
+    // Fetch if expanding and not yet cached (or previously returned empty — allow retry)
+    final cachedClaims = _itemClaimsCache[itemId];
+    if (!isExpanded && (cachedClaims == null || cachedClaims.isEmpty)) {
       setState(() {
         _loadingClaims[itemId] = true;
       });
@@ -508,7 +510,52 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
                 ),
               ],
             ),
-          ] else if (claim.status == ClaimStatus.claimVerified || claim.status == ClaimStatus.collected) ...[
+          ] else if (claim.status == ClaimStatus.claimVerified) ...[
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AppTheme.successBg,
+                borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                border: Border.all(color: AppTheme.success.withValues(alpha: 0.2)),
+              ),
+              child: const Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.hourglass_top, color: AppTheme.success, size: 16),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Verified — waiting for the claimant to review the photo and confirm.',
+                      style: TextStyle(color: AppTheme.success, fontSize: 12),
+                      softWrap: true,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ] else if (claim.status == ClaimStatus.closedByClaimant) ...[
+            Container(
+              padding: const EdgeInsets.all(10),
+              decoration: BoxDecoration(
+                color: AppTheme.surfaceMuted,
+                borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+              ),
+              child: const Row(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Icon(Icons.cancel_outlined, color: AppTheme.textMuted, size: 16),
+                  SizedBox(width: 8),
+                  Expanded(
+                    child: Text(
+                      'Claimant viewed the photo and confirmed it was not their item.',
+                      style: TextStyle(color: AppTheme.textMuted, fontSize: 12),
+                      softWrap: true,
+                    ),
+                  ),
+                ],
+              ),
+            ),
+          ] else if (claim.status == ClaimStatus.collected) ...[
             Wrap(
               alignment: WrapAlignment.spaceBetween,
               crossAxisAlignment: WrapCrossAlignment.center,
@@ -516,7 +563,7 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
               runSpacing: 8,
               children: [
                 const Text(
-                  'Description verified by you.',
+                  'Item has been collected.',
                   style: TextStyle(fontSize: 12, color: AppTheme.success),
                 ),
                 OutlinedButton.icon(
@@ -524,11 +571,12 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
                     MutualContactModal.show(
                       context,
                       claimId: claim.claimId,
+                      viewerRole: ContactViewerRole.finder,
                       onCollected: () => _fetchListings(),
                     );
                   },
                   icon: const Icon(Icons.handshake_outlined, size: 16),
-                  label: const Text('Contact Exchange'),
+                  label: const Text('View Contact'),
                   style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
                     visualDensity: VisualDensity.compact,

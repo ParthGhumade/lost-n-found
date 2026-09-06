@@ -4,19 +4,25 @@ import '../api_service.dart';
 import '../app_theme.dart';
 import '../models.dart';
 
+/// Who is viewing the contact exchange modal.
+enum ContactViewerRole { finder, claimant }
+
 class MutualContactModal extends StatefulWidget {
   final String claimId;
+  final ContactViewerRole viewerRole;
   final VoidCallback? onCollected;
 
   const MutualContactModal({
     super.key,
     required this.claimId,
+    required this.viewerRole,
     this.onCollected,
   });
 
   static Future<void> show(
     BuildContext context, {
     required String claimId,
+    required ContactViewerRole viewerRole,
     VoidCallback? onCollected,
   }) {
     return showModalBottomSheet(
@@ -25,6 +31,7 @@ class MutualContactModal extends StatefulWidget {
       backgroundColor: Colors.transparent,
       builder: (ctx) => MutualContactModal(
         claimId: claimId,
+        viewerRole: viewerRole,
         onCollected: onCollected,
       ),
     );
@@ -215,22 +222,23 @@ class _MutualContactModalState extends State<MutualContactModal> {
                   ),
                 )
               else if (_exchange != null) ...[
-                // Finder Contact Card
-                _buildProfileCard(
-                  title: "Finder's Details",
-                  icon: Icons.person_search_outlined,
-                  accentColor: AppTheme.primary,
-                  profile: _exchange!.finder,
-                ),
-                const SizedBox(height: 14),
-
-                // Claimant Contact Card
-                _buildProfileCard(
-                  title: "Claimant's Details",
-                  icon: Icons.person_pin_outlined,
-                  accentColor: AppTheme.textSecondary,
-                  profile: _exchange!.claimant,
-                ),
+                // Show ONLY the counterpart's contact
+                // Finder sees claimant; claimant sees finder
+                if (widget.viewerRole == ContactViewerRole.finder) ...[
+                  _buildProfileCard(
+                    title: "Claimant's Contact",
+                    icon: Icons.person_pin_outlined,
+                    accentColor: AppTheme.primary,
+                    profile: _exchange!.claimant,
+                  ),
+                ] else ...[
+                  _buildProfileCard(
+                    title: "Finder's Contact",
+                    icon: Icons.person_search_outlined,
+                    accentColor: AppTheme.primary,
+                    profile: _exchange!.finder,
+                  ),
+                ],
                 const SizedBox(height: 16),
 
                 // Campus Safety Tip

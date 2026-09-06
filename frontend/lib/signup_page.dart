@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'app_theme.dart';
 import 'main.dart';
 import 'supabase_config.dart';
 
@@ -88,8 +89,18 @@ class _SignupPageState extends State<SignupPage> {
         throw const AuthException('Signup failed: user record could not be created.');
       }
 
-      // 2. Also ensure profile is directly inserted/upserted if session is active
-      if (authResponse.session != null) {
+      // 2. Auto sign in immediately if session was not returned in signUp
+      Session? session = authResponse.session;
+      if (session == null) {
+        final signInResponse = await supabase.auth.signInWithPassword(
+          email: email,
+          password: password,
+        );
+        session = signInResponse.session;
+      }
+
+      // 3. Ensure profile is directly inserted/upserted with active session
+      if (session != null) {
         await supabase.from(SupabaseConfig.tableContacts).upsert({
           'contact_id': user.id,
           'name': name,
@@ -101,17 +112,15 @@ class _SignupPageState extends State<SignupPage> {
       }
 
       if (mounted) {
-        final message = authResponse.session != null
-            ? 'Account created and logged in successfully!'
-            : 'Registration submitted! Please log in with your credentials.';
-
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-            content: Text(message),
-            backgroundColor: Colors.green,
+            content: const Text('Account created and signed in! Welcome to Campus Lost & Found.'),
+            backgroundColor: AppTheme.success,
           ),
         );
-        Navigator.of(context).pop();
+        if (Navigator.of(context).canPop()) {
+          Navigator.of(context).pop();
+        }
       }
     } on AuthException catch (e) {
       if (mounted) {
