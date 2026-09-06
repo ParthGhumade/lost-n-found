@@ -51,6 +51,7 @@ class _FeedScreenState extends State<FeedScreen> {
     _itemsChannel = apiService.subscribeToTable(
       table: SupabaseConfig.tableItems,
       onData: (_) => _debouncedRefresh(),
+      onConnectedOrReconnected: () => _debouncedRefresh(),
     );
   }
 

@@ -385,9 +385,12 @@ class ApiService {
   }
 
   /// Subscribe to Postgres change events (INSERT, UPDATE, DELETE) on a table.
+  /// Automatically triggers [onConnectedOrReconnected] upon initial subscription
+  /// and whenever the connection is restored after a network failure.
   RealtimeChannel? subscribeToTable({
     required String table,
     required void Function(PostgresChangePayload payload) onData,
+    void Function()? onConnectedOrReconnected,
   }) {
     if (!isRealtimeAvailable) {
       return null;
@@ -403,7 +406,11 @@ class ApiService {
             table: table,
             callback: onData,
           )
-          .subscribe();
+          .subscribe((status, [error]) {
+            if (status == RealtimeSubscribeStatus.subscribed) {
+              onConnectedOrReconnected?.call();
+            }
+          });
     } catch (_) {
       return null;
     }

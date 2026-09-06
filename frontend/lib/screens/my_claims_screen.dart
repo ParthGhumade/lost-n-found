@@ -36,6 +36,7 @@ class _MyClaimsScreenState extends State<MyClaimsScreen> {
     _claimsChannel = apiService.subscribeToTable(
       table: SupabaseConfig.tableClaims,
       onData: (_) => _debouncedRefresh(),
+      onConnectedOrReconnected: () => _debouncedRefresh(),
     );
   }
 

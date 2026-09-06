@@ -40,10 +40,12 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
     _claimsChannel = apiService.subscribeToTable(
       table: SupabaseConfig.tableClaims,
       onData: (_) => _debouncedRefresh(),
+      onConnectedOrReconnected: () => _debouncedRefresh(),
     );
     _itemsChannel = apiService.subscribeToTable(
       table: SupabaseConfig.tableItems,
       onData: (_) => _debouncedRefresh(),
+      onConnectedOrReconnected: () => _debouncedRefresh(),
     );
   }
 
