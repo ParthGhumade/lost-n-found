@@ -37,20 +37,6 @@ class _SignupPageState extends State<SignupPage> {
     super.dispose();
   }
 
-  /// Prefill sample test credentials for rapid testing
-  void _fillTestData() {
-    final timestamp = DateTime.now().millisecondsSinceEpoch.toString().substring(8);
-    setState(() {
-      _emailController.text = 'student$timestamp@campus.edu';
-      _passwordController.text = 'student@123';
-      _nameController.text = 'Campus Student $timestamp';
-      _classController.text = 'TE - Div B';
-      _branchController.text = 'Computer Engineering';
-      _phoneController.text = '+91 9876543210';
-      _errorMessage = null;
-    });
-  }
-
   Future<void> _signUp() async {
     if (!_formKey.currentState!.validate()) return;
 
@@ -150,13 +136,6 @@ class _SignupPageState extends State<SignupPage> {
     return Scaffold(
       appBar: AppBar(
         title: const Text('Create Account'),
-        actions: [
-          TextButton.icon(
-            onPressed: _fillTestData,
-            icon: const Icon(Icons.auto_fix_high, size: 18),
-            label: const Text('Fill Test'),
-          ),
-        ],
       ),
       body: Center(
         child: SingleChildScrollView(

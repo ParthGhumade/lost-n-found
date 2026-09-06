@@ -65,8 +65,8 @@ class LoginPage extends StatefulWidget {
 
 class _LoginPageState extends State<LoginPage> {
   final _formKey = GlobalKey<FormState>();
-  final _emailController = TextEditingController(text: 'test@campus.edu');
-  final _passwordController = TextEditingController(text: 'test@123');
+  final _emailController = TextEditingController();
+  final _passwordController = TextEditingController();
   bool _isLoading = false;
   String? _errorMessage;
   bool _obscurePassword = true;
@@ -82,9 +82,7 @@ class _LoginPageState extends State<LoginPage> {
     final targetEmail = (email ?? _emailController.text).trim();
     final targetPassword = (password ?? _passwordController.text).trim();
 
-    final resolvedEmail = targetEmail.toLowerCase() == 'test'
-        ? 'test@campus.edu'
-        : targetEmail;
+    final resolvedEmail = targetEmail;
 
     setState(() {
       _isLoading = true;
@@ -258,26 +256,13 @@ class _LoginPageState extends State<LoginPage> {
                             : const Text('Sign In to Campus Portal'),
                       ),
                       const SizedBox(height: 16),
-                      const Divider(height: 1),
-                      const SizedBox(height: 14),
-                      OutlinedButton.icon(
-                        onPressed: _isLoading
-                            ? null
-                            : () => _signIn(
-                                  email: 'test@campus.edu',
-                                  password: 'test@123',
-                                ),
-                        icon: const Icon(Icons.bolt, color: Colors.orange, size: 18),
-                        label: const Text('Quick Test Account (test@campus.edu)'),
-                      ),
-                      const SizedBox(height: 12),
                       TextButton(
                         onPressed: () {
                           Navigator.of(context).push(
                             MaterialPageRoute(builder: (_) => const SignupPage()),
                           );
                         },
-                        child: const Text('New Student? Create Account (Signup)'),
+                        child: const Text('New Student? Create Account'),
                       ),
                     ],
                   ),

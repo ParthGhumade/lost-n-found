@@ -18,7 +18,7 @@ void main() {
       home: const LoginPage(),
     ));
     expect(find.text('Campus Lost & Found'), findsOneWidget);
-    expect(find.text('Quick Test Account (test@campus.edu)'), findsOneWidget);
+    expect(find.text('New Student? Create Account (Signup)'), findsOneWidget);
     expect(find.text('Sign In to Campus Portal'), findsOneWidget);
   });
 

@@ -106,7 +106,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         email = Supabase.instance.client.auth.currentUser?.email;
       } catch (_) {}
     }
-    email ??= 'test@campus.edu';
+    email ??= 'Not set';
     final name = _profile?.name.isNotEmpty == true ? _profile!.name : 'Campus Student';
     final studentClass = _profile?.studentClass ?? 'Class Unassigned';
     final branch = _profile?.branch ?? 'Branch Unassigned';
