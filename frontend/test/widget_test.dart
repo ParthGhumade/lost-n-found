@@ -93,14 +93,13 @@ void main() {
           'name': 'Sam Claimant',
           'class': 'TE - Div B',
           'branch': 'Computer Science',
-          'prn': 'PRN998877',
           'contactNumber': '+91 9988776655',
         },
       };
 
       final exchange = MutualContactExchange.fromJson(json);
       expect(exchange.finder.name, 'Alex Finder');
-      expect(exchange.claimant.prn, 'PRN998877');
+      expect(exchange.claimant.branch, 'Computer Science');
       expect(exchange.finder.contactNumber, '+91 9123456780');
     });
   });
@@ -142,9 +141,8 @@ void main() {
       expect(path1.endsWith('_photo.jpg'), isTrue);
     });
 
-    test('Sanitizes phone numbers and PRNs', () {
+    test('Sanitizes phone numbers', () {
       expect(InputSanitizer.sanitizePhoneNumber('+91 (987) 654-3210'), '+919876543210');
-      expect(InputSanitizer.sanitizePrn('  prn-1234-ab '), 'PRN-1234-AB');
     });
   });
 

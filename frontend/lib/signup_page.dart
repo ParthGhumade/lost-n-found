@@ -18,7 +18,6 @@ class _SignupPageState extends State<SignupPage> {
   final _emailController = TextEditingController();
   final _passwordController = TextEditingController();
   final _nameController = TextEditingController();
-  final _prnController = TextEditingController();
   final _classController = TextEditingController();
   final _branchController = TextEditingController();
   final _phoneController = TextEditingController();
@@ -32,7 +31,6 @@ class _SignupPageState extends State<SignupPage> {
     _emailController.dispose();
     _passwordController.dispose();
     _nameController.dispose();
-    _prnController.dispose();
     _classController.dispose();
     _branchController.dispose();
     _phoneController.dispose();
@@ -46,7 +44,6 @@ class _SignupPageState extends State<SignupPage> {
       _emailController.text = 'student$timestamp@campus.edu';
       _passwordController.text = 'student@123';
       _nameController.text = 'Campus Student $timestamp';
-      _prnController.text = 'PRN$timestamp';
       _classController.text = 'TE - Div B';
       _branchController.text = 'Computer Engineering';
       _phoneController.text = '+91 9876543210';
@@ -65,7 +62,6 @@ class _SignupPageState extends State<SignupPage> {
     final email = _emailController.text.trim();
     final password = _passwordController.text.trim();
     final name = _nameController.text.trim();
-    final prn = _prnController.text.trim();
     final studentClass = _classController.text.trim();
     final branch = _branchController.text.trim();
     final phone = _phoneController.text.trim();
@@ -79,7 +75,6 @@ class _SignupPageState extends State<SignupPage> {
           'name': name,
           'class': studentClass,
           'branch': branch,
-          'prn': prn,
           'contact_number': phone,
         },
       );
@@ -106,7 +101,6 @@ class _SignupPageState extends State<SignupPage> {
           'name': name,
           'class': studentClass,
           'branch': branch,
-          'prn': prn,
           'contact_number': phone,
         });
       }
@@ -298,35 +292,16 @@ class _SignupPageState extends State<SignupPage> {
                             (val == null || val.trim().isEmpty) ? 'Please enter your full name' : null,
                       ),
                       const SizedBox(height: 12),
-                      Row(
-                        children: [
-                          Expanded(
-                            child: TextFormField(
-                              controller: _prnController,
-                              textCapitalization: TextCapitalization.characters,
-                              decoration: const InputDecoration(
-                                labelText: 'PRN / Roll No',
-                                hintText: 'PRN123456',
-                                border: OutlineInputBorder(),
-                              ),
-                              validator: (val) =>
-                                  (val == null || val.trim().isEmpty) ? 'Required' : null,
-                            ),
-                          ),
-                          const SizedBox(width: 12),
-                          Expanded(
-                            child: TextFormField(
-                              controller: _classController,
-                              decoration: const InputDecoration(
-                                labelText: 'Class / Year',
-                                hintText: 'TE - Div A',
-                                border: OutlineInputBorder(),
-                              ),
-                              validator: (val) =>
-                                  (val == null || val.trim().isEmpty) ? 'Required' : null,
-                            ),
-                          ),
-                        ],
+                      TextFormField(
+                        controller: _classController,
+                        decoration: const InputDecoration(
+                          labelText: 'Class / Year',
+                          hintText: 'TE - Div A',
+                          prefixIcon: Icon(Icons.badge_outlined),
+                          border: OutlineInputBorder(),
+                        ),
+                        validator: (val) =>
+                            (val == null || val.trim().isEmpty) ? 'Please enter your class' : null,
                       ),
                       const SizedBox(height: 12),
                       TextFormField(

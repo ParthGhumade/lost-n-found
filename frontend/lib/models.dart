@@ -72,7 +72,6 @@ class ContactProfile {
   final String name;
   final String studentClass;
   final String branch;
-  final String? prn;
   final String contactNumber;
   final DateTime? createdAt;
 
@@ -81,7 +80,6 @@ class ContactProfile {
     required this.name,
     required this.studentClass,
     required this.branch,
-    this.prn,
     required this.contactNumber,
     this.createdAt,
   });
@@ -92,7 +90,6 @@ class ContactProfile {
       name: json['name'] as String? ?? '',
       studentClass: json['class'] as String? ?? json['studentClass'] as String? ?? '',
       branch: json['branch'] as String? ?? '',
-      prn: json['prn'] as String?,
       contactNumber: json['contact_number'] as String? ?? json['contactNumber'] as String? ?? '',
       createdAt: json['created_at'] != null ? DateTime.tryParse(json['created_at'] as String) : null,
     );
@@ -104,7 +101,6 @@ class ContactProfile {
       'name': name,
       'class': studentClass,
       'branch': branch,
-      if (prn != null) 'prn': prn,
       'contact_number': contactNumber,
     };
   }

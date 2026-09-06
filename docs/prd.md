@@ -40,7 +40,6 @@ This platform prevents false claims through an **asymmetric verification loop**:
   - `name` (text, not null)
   - `class` (text, not null)
   - `branch` (text, not null)
-  - `prn` (text, unique, student registration number)
   - `contact_number` (text, not null)
   - `created_at` (timestamptz)
 
@@ -71,7 +70,6 @@ This platform prevents false claims through an **asymmetric verification loop**:
 - [ ] **Auth Integration**: Supabase authentication for student accounts.
 - [ ] **Mandatory Profile Setup**: First-time login forces completion of contact profile:
   - [ ] Full Name
-  - [ ] College PRN (Permanent Registration Number)
   - [ ] Class / Year
   - [ ] Branch / Department
   - [ ] Active Phone / WhatsApp Number
@@ -124,7 +122,7 @@ This platform prevents false claims through an **asymmetric verification loop**:
 - [ ] **Contact Exchange Screen**:
   - [ ] Shown to both Finder and Claimant once claimant confirms "IT'S MINE".
   - [ ] Reveals Finder's details to Claimant: Name, Class, Branch, Contact Number.
-  - [ ] Reveals Claimant's details to Finder: Name, Class, Branch, PRN, Contact Number.
+  - [ ] Reveals Claimant's details to Finder: Name, Class, Branch, Contact Number.
 - [ ] **Meet & Handover Confirmation**:
   - [ ] Either party (or Finder) marks item as `collected`.
   - [ ] Marking `collected` automatically updates the parent item status to `returned`.

@@ -99,7 +99,7 @@ void main() {
     headers: {'apikey': anonKey, 'Authorization': 'Bearer $claimantToken'},
   );
   final claimantProfile = (jsonDecode(claimantProfileRes.body) as List).first;
-  print('👤 [Claimant Logged In]: ${claimantProfile['name']} (${claimantProfile['class']}, PRN: ${claimantProfile['prn']})');
+  print('👤 [Claimant Logged In]: ${claimantProfile['name']} (${claimantProfile['class']})');
 
   // 2.1 Sam browses public feed
   print('🔍 [Claimant Action]: Browsing public feed for "Headphones"...');
@@ -221,7 +221,6 @@ void main() {
 
   print('\n📇 [Contact Card Revealed to Finder]:');
   print('   Claimant: ${mutualData['claimant']['name']}');
-  print('   PRN: ${mutualData['claimant']['prn']}');
   print('   Phone: ${mutualData['claimant']['contactNumber']}');
   print('🤝 Both students coordinate via WhatsApp to meet outside Library 3rd Floor.\n');
 

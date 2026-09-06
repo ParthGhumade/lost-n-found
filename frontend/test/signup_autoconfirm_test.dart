@@ -28,7 +28,6 @@ void main() {
           'name': testName,
           'class': 'SE - Div C',
           'branch': 'Information Technology',
-          'prn': 'PRN_$uniqueId',
           'contact_number': '+91 9876500000',
         },
       }),

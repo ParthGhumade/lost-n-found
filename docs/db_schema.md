@@ -5,7 +5,6 @@
 - text name
 - text class
 - text branch
-- text prn
 - text contact_number
 - timestamptz created_at
 

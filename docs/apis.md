@@ -55,7 +55,6 @@ Retrieves the onboarded contact profile for the currently authenticated user.
   "name": "Jane Doe",
   "class": "TE - Div A",
   "branch": "Computer Science",
-  "prn": "PRN12345678",
   "contactNumber": "+91 9876543210",
   "createdAt": "2026-09-06T11:06:14.205Z"
 }
@@ -72,14 +71,12 @@ Created on first-time signup before accessing the app features.
   "name": "Jane Doe",
   "class": "TE - Div A",
   "branch": "Computer Science",
-  "prn": "PRN12345678",
   "contact_number": "+91 9876543210"
 }
 ```
 - **Validation**:
   - `name`: String, 2 to 100 characters.
   - `class`, `branch`: Required strings.
-  - `prn`: Alphanumeric, unique.
   - `contact_number`: Valid E.164 phone string (e.g., `+91...`).
 - **Success Response (`201 Created`)**: Returns created contact object.
 
@@ -305,7 +302,6 @@ Retrieves contact information between Finder and Claimant once a claim is confir
     "name": "Jane Doe",
     "class": "TE - Div A",
     "branch": "Computer Science",
-    "prn": "PRN12345678",
     "contactNumber": "+91 9876543210"
   }
 }

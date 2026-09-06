@@ -130,7 +130,7 @@
 - **UI Layout**:
   - Side-by-side or stacked clean identity cards:
     - **Finder Details**: Name, Class, Branch, Phone Number with direct `[ Call ]` / `[ WhatsApp ]` launch.
-    - **Your Details**: Name, PRN, Phone Number.
+    - **Your Details**: Name, Class, Branch, Phone Number.
   - Handover Action:
     - Single button: `[ Mark as Collected / Returned ]`.
     - Confirmation alert: *"Has the item been physically returned? This will close the listing."*

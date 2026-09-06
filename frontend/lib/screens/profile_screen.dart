@@ -110,7 +110,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final name = _profile?.name.isNotEmpty == true ? _profile!.name : 'Campus Student';
     final studentClass = _profile?.studentClass ?? 'Class Unassigned';
     final branch = _profile?.branch ?? 'Branch Unassigned';
-    final prn = _profile?.prn;
     final phone = _profile?.contactNumber.isNotEmpty == true ? _profile!.contactNumber : 'Not set';
 
     final initials = name
@@ -269,14 +268,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             label: 'Contact Number',
                             value: phone,
                           ),
-                          if (prn != null && prn.isNotEmpty) ...[
-                            const Divider(height: 20),
-                            _buildDetailRow(
-                              icon: Icons.badge_outlined,
-                              label: 'PRN',
-                              value: prn,
-                            ),
-                          ],
                           const Divider(height: 20),
                           _buildDetailRow(
                             icon: Icons.school_outlined,

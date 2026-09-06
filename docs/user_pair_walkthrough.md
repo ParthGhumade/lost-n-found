@@ -2,7 +2,7 @@
 
 This document details the live end-to-end execution of the Campus Lost & Found verification loop between two real students:
 - **Finder (Alex)**: `test@campus.edu` (TE - Div A, Computer Science)
-- **Claimant (Sam)**: `claimant@campus.edu` (TE - Div B, Computer Science, PRN: `PRN998877`)
+- **Claimant (Sam)**: `claimant@campus.edu` (TE - Div B, Computer Science)
 
 ---
 
@@ -51,7 +51,7 @@ Alex clicks [Mark as Collected] ➔ Item archived from feed, claim marked collec
 
 ### Act 2: The Claimant Searches the Feed & Submits Proof
 
-1. **Sam logs in** (`claimant@campus.edu`, PRN: `PRN998877`).
+1. **Sam logs in** (`claimant@campus.edu`).
 2. **Sam opens the Public Feed** and searches for `"Headphones"`.
 3. **Sam sees the card**:
    - `Over-ear Headphones` found at `Central Library, 3rd Floor Quiet Study Area`.
@@ -96,8 +96,7 @@ The `rpc/get_mutual_contact` unlocks mutual contact cards directly in the app:
 | **Name:** Test Student | **Name:** Sam Claimant |
 | **Class:** TE - Div A | **Class:** TE - Div B |
 | **Branch:** Computer Science | **Branch:** Computer Science |
-| **Phone:** `+91 9876543210` | **PRN:** `PRN998877` |
-| | **Phone:** `+91 9988776655` |
+| **Phone:** `+91 9876543210` | **Phone:** `+91 9988776655` |
 
 - Both students coordinate via WhatsApp/call to meet outside the Library 3rd Floor entrance.
 

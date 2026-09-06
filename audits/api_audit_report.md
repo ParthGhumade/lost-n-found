@@ -60,7 +60,7 @@ An end-to-end integration and security audit was conducted against all 16 API en
   - Partial unique index `idx_unique_active_claim_per_user` on `claims(item_id, claimant_contact_id)` rejects concurrent active claims (`409 Conflict`).
 
 ### 3.3 Mutual Contact Privacy
-- **Vulnerability Checked:** Can unauthorized third parties inspect contact phone numbers and PRNs?
+- **Vulnerability Checked:** Can unauthorized third parties inspect contact phone numbers and student details?
 - **Result:** **SECURE**.
   - Contacts table RLS restricts `SELECT` to `auth.uid() = contact_id`.
   - Cross-user contact sharing is mediated exclusively via the security-definer RPC `get_mutual_contact`, requiring active `claim_verified` or `collected` status.

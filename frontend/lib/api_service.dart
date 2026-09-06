@@ -42,7 +42,6 @@ class ApiService {
     required String name,
     required String studentClass,
     required String branch,
-    required String prn,
     required String contactNumber,
   }) async {
     final uid = currentUserId;
@@ -55,7 +54,6 @@ class ApiService {
           'name': name.trim(),
           'class': studentClass.trim(),
           'branch': branch.trim(),
-          'prn': prn.trim(),
           'contact_number': contactNumber.trim(),
         })
         .select()

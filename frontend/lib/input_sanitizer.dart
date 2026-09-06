@@ -103,12 +103,6 @@ class InputSanitizer {
     return cleaned;
   }
 
-  /// Sanitizes PRN / Roll numbers (alphanumeric uppercase, hyphens allowed)
-  static String sanitizePrn(String? rawPrn) {
-    if (rawPrn == null) return '';
-    return rawPrn.toUpperCase().replaceAll(RegExp(r'[^A-Z0-9\-]'), '').trim();
-  }
-
   /// Sanitizes phone numbers: retains leading `+` and digits only
   static String sanitizePhoneNumber(String? rawPhone) {
     if (rawPhone == null) return '';
