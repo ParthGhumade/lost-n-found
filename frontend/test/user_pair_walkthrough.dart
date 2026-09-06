@@ -1,16 +1,17 @@
-// ignore_for_file: avoid_print
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 
 const supabaseUrl = 'https://qmlzegacppfjsrgzacbi.supabase.co';
 const anonKey =
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFtbHplZ2FjcHBmanNyZ3phY2JpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg2ODQ3OTIsImV4cCI6MjEwNDI2MDc5Mn0._7DMfB7mSWefVUdVamPsb0yWuNLykXNmR2u6HZdxRAY';
 
-void main() async {
-  print('================================================================');
-  print('🚀 REAL-WORLD USER WALKTHROUGH SIMULATION: FINDER & CLAIMANT');
-  print('================================================================\n');
+void main() {
+  test('User Pair Walkthrough Simulation', () async {
+    print('================================================================');
+    print('🚀 REAL-WORLD USER WALKTHROUGH SIMULATION: FINDER & CLAIMANT');
+    print('================================================================\n');
 
   Future<Map<String, dynamic>> login(String email, String password) async {
     final res = await http.post(
@@ -248,4 +249,5 @@ void main() async {
   print('\n================================================================');
   print('🎉 SIMULATION COMPLETED SUCCESSFULLY WITH 100% FLOW INTEGRITY!');
   print('================================================================');
+  }, timeout: const Timeout(Duration(minutes: 2)));
 }

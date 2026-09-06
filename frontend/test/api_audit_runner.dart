@@ -1,16 +1,18 @@
 // ignore_for_file: avoid_print
 import 'dart:convert';
 import 'dart:typed_data';
+import 'package:flutter_test/flutter_test.dart';
 import 'package:http/http.dart' as http;
 
 const supabaseUrl = 'https://qmlzegacppfjsrgzacbi.supabase.co';
 const anonKey =
     'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6InFtbHplZ2FjcHBmanNyZ3phY2JpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODg2ODQ3OTIsImV4cCI6MjEwNDI2MDc5Mn0._7DMfB7mSWefVUdVamPsb0yWuNLykXNmR2u6HZdxRAY';
 
-void main() async {
-  print('=== STARTING END-TO-END API AUDIT SUITE ===');
-  int passed = 0;
-  int failed = 0;
+void main() {
+  test('End-to-End Live Supabase API Audit Suite', () async {
+    print('=== STARTING END-TO-END API AUDIT SUITE ===');
+    int passed = 0;
+    int failed = 0;
 
   Future<void> runTest(String name, Future<void> Function() testFn) async {
     try {
@@ -337,4 +339,5 @@ void main() async {
   if (failed > 0) {
     throw Exception('$failed tests failed!');
   }
+  }, timeout: const Timeout(Duration(minutes: 2)));
 }

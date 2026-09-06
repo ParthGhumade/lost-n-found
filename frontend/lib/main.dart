@@ -1,5 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
+import 'api_service.dart';
+import 'app_theme.dart';
+import 'models.dart';
+import 'screens/feed_screen.dart';
+import 'screens/my_claims_screen.dart';
+import 'screens/my_listings_screen.dart';
+import 'screens/profile_screen.dart';
+import 'screens/report_item_screen.dart';
 import 'signup_page.dart';
 import 'supabase_config.dart';
 
@@ -24,13 +32,7 @@ class LostNFoundApp extends StatelessWidget {
     return MaterialApp(
       title: 'Campus Lost & Found',
       debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: const Color(0xFF1E88E5),
-          brightness: Brightness.light,
-        ),
-        useMaterial3: true,
-      ),
+      theme: AppTheme.lightTheme,
       home: const AuthGate(),
     );
   }
@@ -46,7 +48,7 @@ class AuthGate extends StatelessWidget {
       builder: (context, snapshot) {
         final session = supabase.auth.currentSession;
         if (session != null) {
-          return const HomeScreen();
+          return const MainShellScreen();
         }
         return const LoginPage();
       },
@@ -80,7 +82,6 @@ class _LoginPageState extends State<LoginPage> {
     final targetEmail = (email ?? _emailController.text).trim();
     final targetPassword = (password ?? _passwordController.text).trim();
 
-    // Map username 'test' to 'test@campus.edu' if user entered 'test'
     final resolvedEmail = targetEmail.toLowerCase() == 'test'
         ? 'test@campus.edu'
         : targetEmail;
@@ -98,7 +99,7 @@ class _LoginPageState extends State<LoginPage> {
 
       if (response.session == null && mounted) {
         setState(() {
-          _errorMessage = 'Login failed. Please check credentials.';
+          _errorMessage = 'Login failed. Please check your credentials.';
         });
       }
     } on AuthException catch (e) {
@@ -124,18 +125,18 @@ class _LoginPageState extends State<LoginPage> {
 
   @override
   Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-
     return Scaffold(
+      backgroundColor: AppTheme.background,
       body: Center(
         child: SingleChildScrollView(
-          padding: const EdgeInsets.symmetric(horizontal: 28.0, vertical: 24.0),
+          padding: const EdgeInsets.symmetric(horizontal: 24.0, vertical: 24.0),
           child: ConstrainedBox(
             constraints: const BoxConstraints(maxWidth: 420),
             child: Card(
-              elevation: 4,
+              elevation: 0,
               shape: RoundedRectangleBorder(
-                borderRadius: BorderRadius.circular(20),
+                borderRadius: BorderRadius.circular(AppTheme.radiusLg),
+                side: const BorderSide(color: AppTheme.border),
               ),
               child: Padding(
                 padding: const EdgeInsets.all(28.0),
@@ -145,26 +146,35 @@ class _LoginPageState extends State<LoginPage> {
                     mainAxisSize: MainAxisSize.min,
                     crossAxisAlignment: CrossAxisAlignment.stretch,
                     children: [
-                      Icon(
-                        Icons.find_in_page_rounded,
-                        size: 64,
-                        color: theme.colorScheme.primary,
+                      Center(
+                        child: Container(
+                          padding: const EdgeInsets.all(14),
+                          decoration: BoxDecoration(
+                            color: AppTheme.primaryContainer,
+                            borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                          ),
+                          child: const Icon(
+                            Icons.verified_user_outlined,
+                            size: 40,
+                            color: AppTheme.primary,
+                          ),
+                        ),
                       ),
-                      const SizedBox(height: 12),
-                      Text(
+                      const SizedBox(height: 16),
+                      const Text(
                         'Campus Lost & Found',
                         textAlign: TextAlign.center,
-                        style: theme.textTheme.headlineSmall?.copyWith(
+                        style: TextStyle(
+                          fontSize: 22,
                           fontWeight: FontWeight.bold,
+                          color: AppTheme.textPrimary,
                         ),
                       ),
-                      const SizedBox(height: 6),
-                      Text(
-                        'Anti-fraud campus lost items portal',
+                      const SizedBox(height: 4),
+                      const Text(
+                        'Student anti-fraud lost item verification portal',
                         textAlign: TextAlign.center,
-                        style: theme.textTheme.bodyMedium?.copyWith(
-                          color: Colors.grey.shade600,
-                        ),
+                        style: TextStyle(fontSize: 13, color: AppTheme.textMuted),
                       ),
                       const SizedBox(height: 24),
                       if (_errorMessage != null)
@@ -172,24 +182,18 @@ class _LoginPageState extends State<LoginPage> {
                           padding: const EdgeInsets.all(12),
                           margin: const EdgeInsets.only(bottom: 16),
                           decoration: BoxDecoration(
-                            color: theme.colorScheme.errorContainer,
-                            borderRadius: BorderRadius.circular(10),
+                            color: AppTheme.dangerBg,
+                            borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                            border: Border.all(color: AppTheme.danger.withOpacity(0.3)),
                           ),
                           child: Row(
                             children: [
-                              Icon(
-                                Icons.error_outline,
-                                color: theme.colorScheme.error,
-                                size: 20,
-                              ),
+                              const Icon(Icons.error_outline, color: AppTheme.danger, size: 18),
                               const SizedBox(width: 8),
                               Expanded(
                                 child: Text(
                                   _errorMessage!,
-                                  style: TextStyle(
-                                    color: theme.colorScheme.onErrorContainer,
-                                    fontSize: 13,
-                                  ),
+                                  style: const TextStyle(color: AppTheme.danger, fontSize: 13),
                                 ),
                               ),
                             ],
@@ -199,10 +203,9 @@ class _LoginPageState extends State<LoginPage> {
                         controller: _emailController,
                         keyboardType: TextInputType.emailAddress,
                         decoration: const InputDecoration(
-                          labelText: 'Email or Username',
-                          hintText: 'test or test@campus.edu',
-                          prefixIcon: Icon(Icons.person_outline),
-                          border: OutlineInputBorder(),
+                          labelText: 'Campus Email',
+                          hintText: 'e.g. yourname@campus.edu',
+                          prefixIcon: Icon(Icons.email_outlined, size: 20),
                         ),
                         validator: (value) {
                           if (value == null || value.trim().isEmpty) {
@@ -211,19 +214,17 @@ class _LoginPageState extends State<LoginPage> {
                           return null;
                         },
                       ),
-                      const SizedBox(height: 16),
+                      const SizedBox(height: 14),
                       TextFormField(
                         controller: _passwordController,
                         obscureText: _obscurePassword,
                         decoration: InputDecoration(
                           labelText: 'Password',
-                          hintText: 'test@123',
-                          prefixIcon: const Icon(Icons.lock_outline),
+                          prefixIcon: const Icon(Icons.lock_outline, size: 20),
                           suffixIcon: IconButton(
                             icon: Icon(
-                              _obscurePassword
-                                  ? Icons.visibility_off
-                                  : Icons.visibility,
+                              _obscurePassword ? Icons.visibility_off_outlined : Icons.visibility_outlined,
+                              size: 20,
                             ),
                             onPressed: () {
                               setState(() {
@@ -231,7 +232,6 @@ class _LoginPageState extends State<LoginPage> {
                               });
                             },
                           ),
-                          border: const OutlineInputBorder(),
                         ),
                         validator: (value) {
                           if (value == null || value.isEmpty) {
@@ -241,7 +241,7 @@ class _LoginPageState extends State<LoginPage> {
                         },
                       ),
                       const SizedBox(height: 20),
-                      FilledButton.icon(
+                      FilledButton(
                         onPressed: _isLoading
                             ? null
                             : () {
@@ -249,27 +249,17 @@ class _LoginPageState extends State<LoginPage> {
                                   _signIn();
                                 }
                               },
-                        icon: _isLoading
+                        child: _isLoading
                             ? const SizedBox(
                                 width: 20,
                                 height: 20,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                  color: Colors.white,
-                                ),
+                                child: CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
                               )
-                            : const Icon(Icons.login),
-                        label: Text(_isLoading ? 'Signing In...' : 'Sign In'),
-                        style: FilledButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 14),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
+                            : const Text('Sign In to Campus Portal'),
                       ),
                       const SizedBox(height: 16),
-                      const Divider(),
-                      const SizedBox(height: 12),
+                      const Divider(height: 1),
+                      const SizedBox(height: 14),
                       OutlinedButton.icon(
                         onPressed: _isLoading
                             ? null
@@ -277,14 +267,8 @@ class _LoginPageState extends State<LoginPage> {
                                   email: 'test@campus.edu',
                                   password: 'test@123',
                                 ),
-                        icon: const Icon(Icons.bolt, color: Colors.orange),
-                        label: const Text('Quick Test Login (test / test@123)'),
-                        style: OutlinedButton.styleFrom(
-                          padding: const EdgeInsets.symmetric(vertical: 12),
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(10),
-                          ),
-                        ),
+                        icon: const Icon(Icons.bolt, color: Colors.orange, size: 18),
+                        label: const Text('Quick Test Account (test@campus.edu)'),
                       ),
                       const SizedBox(height: 12),
                       TextButton(
@@ -307,16 +291,20 @@ class _LoginPageState extends State<LoginPage> {
   }
 }
 
-class HomeScreen extends StatefulWidget {
-  const HomeScreen({super.key});
+class MainShellScreen extends StatefulWidget {
+  const MainShellScreen({super.key});
 
   @override
-  State<HomeScreen> createState() => _HomeScreenState();
+  State<MainShellScreen> createState() => _MainShellScreenState();
 }
 
-class _HomeScreenState extends State<HomeScreen> {
-  Map<String, dynamic>? _contactProfile;
-  bool _isLoading = true;
+class _MainShellScreenState extends State<MainShellScreen> {
+  int _currentIndex = 0;
+  ContactProfile? _currentUserProfile;
+
+  final GlobalKey _feedKey = GlobalKey();
+  final GlobalKey _claimsKey = GlobalKey();
+  final GlobalKey _listingsKey = GlobalKey();
 
   @override
   void initState() {
@@ -325,131 +313,106 @@ class _HomeScreenState extends State<HomeScreen> {
   }
 
   Future<void> _loadProfile() async {
-    final user = supabase.auth.currentUser;
-    if (user != null) {
-      try {
-        final data = await supabase
-            .from(SupabaseConfig.tableContacts)
-            .select()
-            .eq('contact_id', user.id)
-            .maybeSingle();
-
-        if (mounted) {
-          setState(() {
-            _contactProfile = data;
-            _isLoading = false;
-          });
-        }
-      } catch (e) {
-        if (mounted) {
-          setState(() {
-            _isLoading = false;
-          });
-        }
+    try {
+      final profile = await apiService.getCurrentUserProfile();
+      if (mounted) {
+        setState(() {
+          _currentUserProfile = profile;
+        });
       }
-    }
+    } catch (_) {}
+  }
+
+  void _openReportScreen() {
+    Navigator.of(context).push(
+      MaterialPageRoute(
+        builder: (_) => ReportItemScreen(
+          onItemCreated: () {
+            setState(() {
+              _currentIndex = 2; // Switch to My Listings
+            });
+          },
+        ),
+      ),
+    );
   }
 
   @override
   Widget build(BuildContext context) {
-    final user = supabase.auth.currentUser;
-
     return Scaffold(
+      backgroundColor: AppTheme.background,
       appBar: AppBar(
-        title: const Text('Campus Lost & Found'),
-        actions: [
-          IconButton(
-            icon: const Icon(Icons.logout),
-            tooltip: 'Sign Out',
-            onPressed: () async {
+        title: Row(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Container(
+              padding: const EdgeInsets.all(6),
+              decoration: BoxDecoration(
+                color: AppTheme.primaryContainer,
+                borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+              ),
+              child: const Icon(Icons.security, color: AppTheme.primary, size: 20),
+            ),
+            const SizedBox(width: 8),
+            const Flexible(
+              child: Text(
+                'Campus Lost & Found',
+                overflow: TextOverflow.ellipsis,
+              ),
+            ),
+          ],
+        ),
+      ),
+      body: IndexedStack(
+        index: _currentIndex,
+        children: [
+          FeedScreen(
+            key: _feedKey,
+            onRequestReportItem: _openReportScreen,
+          ),
+          MyClaimsScreen(
+            key: _claimsKey,
+            onBrowseFeed: () => setState(() => _currentIndex = 0),
+          ),
+          MyListingsScreen(
+            key: _listingsKey,
+            onRequestReportItem: _openReportScreen,
+          ),
+          ProfileScreen(
+            initialProfile: _currentUserProfile,
+            onSignOut: () async {
               await supabase.auth.signOut();
             },
           ),
         ],
       ),
-      body: _isLoading
-          ? const Center(child: CircularProgressIndicator())
-          : Center(
-              child: ConstrainedBox(
-                constraints: const BoxConstraints(maxWidth: 500),
-                child: Padding(
-                  padding: const EdgeInsets.all(24.0),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      const Icon(
-                        Icons.check_circle_outline,
-                        color: Colors.green,
-                        size: 72,
-                      ),
-                      const SizedBox(height: 16),
-                      Text(
-                        'Authenticated Successfully!',
-                        style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                              fontWeight: FontWeight.bold,
-                            ),
-                      ),
-                      const SizedBox(height: 8),
-                      Text(
-                        'Logged in as: ${user?.email ?? "Unknown"}',
-                        style: TextStyle(color: Colors.grey.shade700),
-                      ),
-                      const SizedBox(height: 24),
-                      if (_contactProfile != null) ...[
-                        Card(
-                          elevation: 2,
-                          shape: RoundedRectangleBorder(
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child: Column(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                const Text(
-                                  'Linked Contact Profile',
-                                  style: TextStyle(
-                                    fontWeight: FontWeight.bold,
-                                    fontSize: 16,
-                                  ),
-                                ),
-                                const Divider(),
-                                _buildInfoRow('Name', _contactProfile!['name']),
-                                _buildInfoRow('Class', _contactProfile!['class']),
-                                _buildInfoRow('Branch', _contactProfile!['branch']),
-                                _buildInfoRow('PRN', _contactProfile!['prn']),
-                                _buildInfoRow('Phone', _contactProfile!['contact_number']),
-                              ],
-                            ),
-                          ),
-                        ),
-                      ],
-                      const SizedBox(height: 24),
-                      OutlinedButton.icon(
-                        icon: const Icon(Icons.logout),
-                        label: const Text('Sign Out'),
-                        onPressed: () async {
-                          await supabase.auth.signOut();
-                        },
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-            ),
-    );
-  }
-
-  Widget _buildInfoRow(String label, dynamic value) {
-    return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 4.0),
-      child: Row(
-        mainAxisAlignment: MainAxisAlignment.spaceBetween,
-        children: [
-          Text(label, style: const TextStyle(color: Colors.grey)),
-          Text(
-            value?.toString() ?? 'N/A',
-            style: const TextStyle(fontWeight: FontWeight.w500),
+      bottomNavigationBar: NavigationBar(
+        selectedIndex: _currentIndex,
+        onDestinationSelected: (index) {
+          setState(() {
+            _currentIndex = index;
+          });
+        },
+        destinations: const [
+          NavigationDestination(
+            icon: Icon(Icons.explore_outlined),
+            selectedIcon: Icon(Icons.explore),
+            label: 'Campus Feed',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.assignment_outlined),
+            selectedIcon: Icon(Icons.assignment),
+            label: 'My Claims',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.inventory_2_outlined),
+            selectedIcon: Icon(Icons.inventory_2),
+            label: 'My Listings',
+          ),
+          NavigationDestination(
+            icon: Icon(Icons.person_outline),
+            selectedIcon: Icon(Icons.person),
+            label: 'Profile',
           ),
         ],
       ),

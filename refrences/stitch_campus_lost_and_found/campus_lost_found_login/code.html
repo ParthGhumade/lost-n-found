@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+
+<html lang="en"><head><meta charset="utf-8"/><meta content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover" name="viewport"/><link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:wght,FILL@100..700,0..1&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@100..900&display=swap" rel="stylesheet"/><style>@layer base{html,body{width:100vw;margin:0;padding:0;}body{overscroll-behavior:none;}.pb-safe{padding-bottom:env(safe-area-inset-bottom,0px);}.pt-safe{padding-top:env(safe-area-inset-top,0px);}main>:first-child{margin-top:0!important;}main>:last-child{margin-bottom:0!important;}}::-webkit-scrollbar{display:none;}</style><script src="https://cdn.tailwindcss.com"></script><script id="tailwind-config">tailwind.config = { darkMode: "class", theme: { extend: { "colors": { "surface-dim": "#cbdbf5", "secondary-fixed": "#dae2fd", "surface-container-highest": "#d3e4fe", "secondary-fixed-dim": "#bec6e0", "primary-container": "#2563eb", "tertiary-fixed": "#ffdbcd", "inverse-on-surface": "#eaf1ff", "surface-container-high": "#dce9ff", "on-primary-fixed": "#00174b", "on-error": "#ffffff", "secondary-container": "#dae2fd", "inverse-primary": "#b4c5ff", "surface-container-low": "#eff4ff", "on-secondary-fixed": "#131b2e", "background": "#f8f9ff", "on-error-container": "#93000a", "on-primary-fixed-variant": "#003ea8", "on-secondary": "#ffffff", "on-tertiary": "#ffffff", "primary": "#004ac6", "on-surface": "#0b1c30", "on-tertiary-fixed": "#360f00", "inverse-surface": "#213145", "on-surface-variant": "#434655", "on-primary": "#ffffff", "on-secondary-container": "#5c647a", "outline-variant": "#c3c6d7", "surface-container-lowest": "#ffffff", "on-primary-container": "#eeefff", "on-secondary-fixed-variant": "#3f465c", "tertiary-fixed-dim": "#ffb596", "surface-container": "#e5eeff", "primary-fixed": "#dbe1ff", "on-tertiary-container": "#ffede6", "surface-bright": "#f8f9ff", "secondary": "#565e74", "on-background": "#0b1c30", "primary-fixed-dim": "#b4c5ff", "outline": "#737686", "tertiary": "#943700", "surface-variant": "#d3e4fe", "surface": "#f8f9ff", "on-tertiary-fixed-variant": "#7d2d00", "error-container": "#ffdad6", "surface-tint": "#0053db", "error": "#ba1a1a", "tertiary-container": "#bc4800" }, "borderRadius": { "DEFAULT": "0.125rem", "lg": "0.25rem", "xl": "0.5rem", "full": "0.75rem" }, "spacing": { "xs": "0.5rem", "lg": "1.5rem", "md": "1rem", "xl": "2rem", "2xs": "0.25rem", "edge-mobile": "1rem", "gutter-mobile": "0.5rem", "sm": "0.75rem", "2xl": "3rem" }, "fontFamily": { "headline-md": ["Inter"], "body-lg": ["Inter"], "label-sm": ["Inter"], "label-md": ["Inter"], "body-md": ["Inter"], "body-sm": ["Inter"], "headline-sm": ["Inter"], "headline-lg": ["Inter"], "code-sm": ["Inter"] }, "fontSize": { "headline-md": ["20px", {"lineHeight": "28px", "letterSpacing": "-0.015em", "fontWeight": "600"}], "body-lg": ["15px", {"lineHeight": "22px", "letterSpacing": "-0.005em", "fontWeight": "400"}], "label-sm": ["11px", {"lineHeight": "14px", "letterSpacing": "0.04em", "fontWeight": "600"}], "label-md": ["12px", {"lineHeight": "16px", "letterSpacing": "0.01em", "fontWeight": "600"}], "body-md": ["14px", {"lineHeight": "20px", "fontWeight": "400"}], "body-sm": ["13px", {"lineHeight": "18px", "fontWeight": "400"}], "headline-sm": ["16px", {"lineHeight": "24px", "letterSpacing": "-0.01em", "fontWeight": "600"}], "headline-lg": ["24px", {"lineHeight": "32px", "letterSpacing": "-0.02em", "fontWeight": "700"}], "code-sm": ["12px", {"lineHeight": "16px", "letterSpacing": "0.02em", "fontWeight": "500"}] } } } };</script></head><body class="bg-surface font-body-md text-body-md text-on-surface pt-safe pb-safe flex flex-col min-h-screen"><main class="flex-1 flex flex-col relative w-full bg-surface"><div class="flex flex-col w-full px-edge-mobile pb-xl">
+<!-- Minimal Academic Utility Banner -->
+<div class="w-full pt-md pb-lg flex flex-col gap-2xs">
+<div class="flex items-center gap-xs text-on-surface-variant">
+<span class="material-symbols-outlined text-[18px] text-primary">domain</span>
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary">Institutional Registry · Sector 4</span>
+</div>
+<h1 class="font-headline-lg text-headline-lg text-on-surface tracking-tight">Campus Lost & Found</h1>
+<p class="font-body-md text-body-md text-secondary">Sign in with your university student ID or institutional email to access logs.</p>
+</div>
+<!-- Main Administrative Panel -->
+<div class="w-full bg-surface-container-lowest rounded-xl p-md shadow-sm flex flex-col gap-md">
+<!-- Segmented Mode Control -->
+<div class="w-full bg-surface-container-low p-2xs rounded-lg flex items-center gap-2xs">
+<button class="flex-1 py-xs px-sm rounded-md font-label-md text-label-md text-center transition-colors bg-surface-container-lowest text-on-surface shadow-sm" id="tab-signin" onclick="switchAuthMode('signin')" type="button">
+        Sign In
+      </button>
+<button class="flex-1 py-xs px-sm rounded-md font-label-md text-label-md text-center transition-colors text-secondary hover:text-on-surface" id="tab-signup" onclick="switchAuthMode('signup')" type="button">
+        Create Account
+      </button>
+</div>
+<!-- Live Status Strip (Utilitarian Alert) -->
+<div class="w-full bg-surface-container-low rounded-lg p-sm flex items-start gap-xs">
+<span class="material-symbols-outlined text-[18px] text-primary shrink-0 mt-0.5">verified_user</span>
+<div class="flex flex-col">
+<span class="font-label-sm text-label-sm text-on-surface uppercase tracking-wide">SSO Central Dispatch</span>
+<span class="font-body-sm text-body-sm text-secondary">Matches logged items strictly with verified university rosters.</span>
+</div>
+</div>
+<!-- Auth Form Stack -->
+<form class="flex flex-col gap-sm" id="auth-form" onsubmit="handleAuthSubmit(event)">
+<!-- Field 1: Email -->
+<div class="flex flex-col gap-2xs">
+<div class="flex justify-between items-center">
+<label class="font-label-sm text-label-sm text-on-surface uppercase tracking-wide" for="student-email">University Email</label>
+<span class="font-code-sm text-code-sm text-outline">@campus.edu</span>
+</div>
+<div class="relative flex items-center">
+<input class="w-full h-10 px-sm rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md placeholder:text-outline focus:bg-surface-container-lowest focus:outline-none transition-all" id="student-email" placeholder="student@campus.edu" required="" type="email"/>
+</div>
+</div>
+<!-- Field 2: University ID / PRN -->
+<div class="flex flex-col gap-2xs">
+<div class="flex justify-between items-center">
+<label class="font-label-sm text-label-sm text-on-surface uppercase tracking-wide" for="student-id">University ID / PRN</label>
+<span class="font-code-sm text-code-sm text-outline">Format: 202X-XXX</span>
+</div>
+<div class="relative flex items-center">
+<input class="w-full h-10 px-sm rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md uppercase placeholder:text-outline focus:bg-surface-container-lowest focus:outline-none transition-all" id="student-id" placeholder="e.g. 2023ENG8492" required="" type="text"/>
+</div>
+</div>
+<!-- Field: Full Legal Name (Visible only on Sign Up) -->
+<div class="hidden flex flex-col gap-2xs" id="field-signup-name">
+<div class="flex justify-between items-center">
+<label class="font-label-sm text-label-sm text-on-surface uppercase tracking-wide" for="student-name">Full Legal Name</label>
+<span class="font-label-sm text-label-sm text-outline">As on Student Card</span>
+</div>
+<input class="w-full h-10 px-sm rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md placeholder:text-outline focus:bg-surface-container-lowest focus:outline-none transition-all" id="student-name" placeholder="First M. Last" type="text"/>
+</div>
+<!-- Field 3: Password -->
+<div class="flex flex-col gap-2xs">
+<div class="flex justify-between items-center">
+<label class="font-label-sm text-label-sm text-on-surface uppercase tracking-wide" for="student-password">Portal Password</label>
+<button class="font-label-sm text-label-sm text-primary hover:underline" onclick="togglePasswordVisibility()" type="button">
+<span id="pwd-toggle-text">Show</span>
+</button>
+</div>
+<div class="relative flex items-center">
+<input class="w-full h-10 px-sm rounded-lg bg-surface-container-low text-on-surface font-body-md text-body-md placeholder:text-outline focus:bg-surface-container-lowest focus:outline-none tracking-widest transition-all" id="student-password" placeholder="••••••••••" required="" type="password"/>
+</div>
+</div>
+<!-- Contextual Action Bar -->
+<div class="pt-xs flex flex-col gap-sm">
+<button class="w-full h-10 rounded-lg bg-inverse-surface text-inverse-on-surface font-label-md text-label-md uppercase tracking-wider flex items-center justify-center gap-xs active:bg-on-surface transition-colors" id="submit-btn" type="submit">
+<span class="material-symbols-outlined text-[16px]">lock_open</span>
+<span id="btn-text">[ Sign In to Campus Portal ]</span>
+</button>
+<button class="text-center font-body-sm text-body-sm text-secondary hover:text-on-surface transition-colors py-2xs" id="mode-toggle-link" onclick="toggleAuthMode()" type="button">
+          New finder or claimant? <span class="text-primary font-semibold">Register here</span>
+</button>
+</div>
+</form>
+<!-- Visual Divider with Machine Data Stamp -->
+<div class="w-full flex items-center justify-between pt-2xs">
+<div class="h-px bg-surface-container-high flex-1"></div>
+<span class="px-sm font-code-sm text-code-sm text-outline uppercase tracking-widest">SYS-AUTH v4.2</span>
+<div class="h-px bg-surface-container-high flex-1"></div>
+</div>
+<!-- Campus Help Desk Direct Telemetry -->
+<div class="w-full flex items-center justify-between text-secondary pt-2xs">
+<div class="flex items-center gap-2xs">
+<span class="material-symbols-outlined text-[14px]">headset_mic</span>
+<span class="font-label-sm text-label-sm">Security Station Hall 2</span>
+</div>
+<a class="font-label-sm text-label-sm text-primary underline" href="#">Report Lost ID</a>
+</div>
+</div>
+<!-- Recent Recoveries Ticker (Adds physical community context) -->
+<div class="mt-md w-full bg-surface-container-lowest rounded-xl p-md flex flex-col gap-sm">
+<div class="flex items-center justify-between">
+<span class="font-label-sm text-label-sm uppercase tracking-wider text-secondary">Recent Intake Feed</span>
+<span class="flex items-center gap-2xs font-label-sm text-label-sm text-primary">
+<span class="w-1.5 h-1.5 rounded-full bg-primary animate-pulse"></span>
+        Live Dispatch
+      </span>
+</div>
+<!-- Item Row 1 -->
+<div class="flex items-center gap-sm bg-surface-container-low p-xs rounded-lg">
+<img class="w-12 h-12 rounded-md object-cover shrink-0" data-alt="A matte black scientific calculator resting on a sterile campus lost-and-found intake tray with clean white fluorescent overhead lighting and clear physical item tags in high contrast sharp documentary photography style." src="https://lh3.googleusercontent.com/aida-public/AB6AXuCWXnVavlcm74Fa4C5JQTeS5RTKDpirTTSHenjCEFLiwXr75FNXJBN4UkUTbWSVLULqcNx1zXZv5iD5tNB8J_HJeOsLj3-8_SSmzQHrnAMBKB2tVnC6rMF1Aj3i9VqHwAaQadU-47inj34olLacyoQrNwpK9__Eleo374ce09PCk0sNwmcT7cA7MdjarNRO0QdEuRwRNbyiOVddgnuYfguk_i17aPNnK2Gd6gxzD2wLhZi0DgZ_jOkl"/>
+<div class="flex flex-col min-w-0 flex-1">
+<div class="flex items-center justify-between gap-2xs">
+<span class="font-headline-sm text-headline-sm text-on-surface truncate">TI-84 Plus CE</span>
+<span class="font-label-sm text-label-sm text-outline shrink-0">12m ago</span>
+</div>
+<span class="font-body-sm text-body-sm text-secondary truncate">Main Library · Study Pod C-4</span>
+</div>
+</div>
+<!-- Item Row 2 -->
+<div class="flex items-center gap-sm bg-surface-container-low p-xs rounded-lg">
+<img class="w-12 h-12 rounded-md object-cover shrink-0" data-alt="A pair of wireframe reading glasses inside a deep blue protective hard case placed on an administrative timber desk surface in clean utilitarian lighting with institutional catalog numbering." src="https://lh3.googleusercontent.com/aida-public/AB6AXuA4T93E2VEqZTZIrRz51SUbDtwd551pUDJRaNPizs5RJCaYVDsAuA7I2MHADNDLF6fa2LBkh_MU3l3Czyr_DiGEi4X5o7dRfO6UxpaHwwDEPQERlXODUcm7AkQubmShZHCD1utpsf2mwUQ5fRZMq4SYtANdiFohAcjldIB0hg0HJQQtq_87TGdk0L_tdS7oTLZ-WOTwR109f6_gZesKw44KtVWBUUyHbL1xlHQN3mo2zUtI5C5MuBgj"/>
+<div class="flex flex-col min-w-0 flex-1">
+<div class="flex items-center justify-between gap-2xs">
+<span class="font-headline-sm text-headline-sm text-on-surface truncate">Prescription Glasses</span>
+<span class="font-label-sm text-label-sm text-outline shrink-0">44m ago</span>
+</div>
+<span class="font-body-sm text-body-sm text-secondary truncate">Engineering Hall · Lab 102</span>
+</div>
+</div>
+<!-- Item Row 3 -->
+<div class="flex items-center gap-sm bg-surface-container-low p-xs rounded-lg">
+<img class="w-12 h-12 rounded-md object-cover shrink-0" data-alt="A stainless steel hydro flask with university stickers on an intake desk beside a barcoded inventory tracking receipt in crisp high-contrast documentary product photography." src="https://lh3.googleusercontent.com/aida-public/AB6AXuApGdmQ_yZZFmWd_7dPev3wpabTdNZfyp8y3jUrkBm1ZlTBGo2plnfZsxytkCbLfSF1l1oYWUhiwSB_CCQPTi2QlHq2XLGl_nkwyRnuvycYPAtc1R7L1zG-rVnj255MZDH__6nt_dcHoaXFUiItFM8v_kcrkz3w4BZBDFsmoa1uXlQv_vRb8dICWpc967_v6NGSaJJSQWRRYGhK9YKPfd0TyQO3JXP1X2gdEV3HW5uKpE0d1nz_57Kt"/>
+<div class="flex flex-col min-w-0 flex-1">
+<div class="flex items-center justify-between gap-2xs">
+<span class="font-headline-sm text-headline-sm text-on-surface truncate">Hydro Flask 32oz (Silver)</span>
+<span class="font-label-sm text-label-sm text-outline shrink-0">2h ago</span>
+</div>
+<span class="font-body-sm text-body-sm text-secondary truncate">Recreation Center · Courts</span>
+</div>
+</div>
+</div>
+<!-- Footer Micro Meta -->
+<div class="w-full mt-lg text-center flex flex-col items-center gap-2xs">
+<span class="font-label-sm text-label-sm text-outline uppercase tracking-widest">Department of Campus Safety · Automated Dispatch</span>
+<span class="font-body-sm text-body-sm text-secondary">All intake records are cryptographically timestamped.</span>
+</div>
+</div>
+<script>
+  let currentAuthMode = 'signin';
+
+  function switchAuthMode(mode) {
+    currentAuthMode = mode;
+    const tabSignin = document.getElementById('tab-signin');
+    const tabSignup = document.getElementById('tab-signup');
+    const signupNameField = document.getElementById('field-signup-name');
+    const btnText = document.getElementById('btn-text');
+    const modeToggleLink = document.getElementById('mode-toggle-link');
+
+    if (mode === 'signin') {
+      tabSignin.className = 'flex-1 py-xs px-sm rounded-md font-label-md text-label-md text-center transition-colors bg-surface-container-lowest text-on-surface shadow-sm';
+      tabSignup.className = 'flex-1 py-xs px-sm rounded-md font-label-md text-label-md text-center transition-colors text-secondary hover:text-on-surface';
+      signupNameField.classList.add('hidden');
+      btnText.textContent = '[ Sign In to Campus Portal ]';
+      modeToggleLink.innerHTML = 'New finder or claimant? <span class="text-primary font-semibold">Register here</span>';
+    } else {
+      tabSignup.className = 'flex-1 py-xs px-sm rounded-md font-label-md text-label-md text-center transition-colors bg-surface-container-lowest text-on-surface shadow-sm';
+      tabSignin.className = 'flex-1 py-xs px-sm rounded-md font-label-md text-label-md text-center transition-colors text-secondary hover:text-on-surface';
+      signupNameField.classList.remove('hidden');
+      btnText.textContent = '[ Register Verified Identity ]';
+      modeToggleLink.innerHTML = 'Already registered with campus? <span class="text-primary font-semibold">Sign in here</span>';
+    }
+  }
+
+  function toggleAuthMode() {
+    switchAuthMode(currentAuthMode === 'signin' ? 'signup' : 'signin');
+  }
+
+  function togglePasswordVisibility() {
+    const pwdInput = document.getElementById('student-password');
+    const toggleLabel = document.getElementById('pwd-toggle-text');
+    if (pwdInput.type === 'password') {
+      pwdInput.type = 'text';
+      pwdInput.classList.remove('tracking-widest');
+      toggleLabel.textContent = 'Hide';
+    } else {
+      pwdInput.type = 'password';
+      pwdInput.classList.add('tracking-widest');
+      toggleLabel.textContent = 'Show';
+    }
+  }
+
+  function handleAuthSubmit(event) {
+    event.preventDefault();
+    const btnText = document.getElementById('btn-text');
+    const originalText = btnText.textContent;
+    btnText.textContent = 'Authenticating with Campus Registry...';
+    setTimeout(() => {
+      btnText.textContent = 'Access Granted · Redirecting';
+      setTimeout(() => {
+        btnText.textContent = originalText;
+      }, 1500);
+    }, 800);
+  }
+</script></main></body></html>
