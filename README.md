@@ -1,5 +1,9 @@
 # Campus Lost & Found
 
+<p align="center">
+  <img src="logo.png" alt="Campus Lost & Found Logo" width="160" />
+</p>
+
 A mobile app for college campuses that helps finders and claimants connect — without exposing item photos to potential scammers.
 
 ---

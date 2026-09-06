@@ -146,15 +146,32 @@ class _LoginPageState extends State<LoginPage> {
                     children: [
                       Center(
                         child: Container(
-                          padding: const EdgeInsets.all(14),
+                          width: 72,
+                          height: 72,
+                          padding: const EdgeInsets.all(8),
                           decoration: BoxDecoration(
-                            color: AppTheme.primaryContainer,
+                            color: Colors.white,
                             borderRadius: BorderRadius.circular(AppTheme.radiusMd),
+                            border: Border.all(color: AppTheme.border),
+                            boxShadow: [
+                              BoxShadow(
+                                color: Colors.black.withOpacity(0.04),
+                                blurRadius: 8,
+                                offset: const Offset(0, 2),
+                              ),
+                            ],
                           ),
-                          child: const Icon(
-                            Icons.verified_user_outlined,
-                            size: 40,
-                            color: AppTheme.primary,
+                          child: ClipRRect(
+                            borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                            child: Image.asset(
+                              'assets/images/logo.png',
+                              fit: BoxFit.contain,
+                              errorBuilder: (context, error, stackTrace) => const Icon(
+                                Icons.verified_user_outlined,
+                                size: 40,
+                                color: AppTheme.primary,
+                              ),
+                            ),
                           ),
                         ),
                       ),
@@ -331,14 +348,28 @@ class _MainShellScreenState extends State<MainShellScreen> {
           mainAxisSize: MainAxisSize.min,
           children: [
             Container(
-              padding: const EdgeInsets.all(6),
+              width: 32,
+              height: 32,
+              padding: const EdgeInsets.all(2),
               decoration: BoxDecoration(
-                color: AppTheme.primaryContainer,
+                color: Colors.white,
                 borderRadius: BorderRadius.circular(AppTheme.radiusSm),
+                border: Border.all(color: AppTheme.border),
               ),
-              child: const Icon(Icons.security, color: AppTheme.primary, size: 20),
+              child: ClipRRect(
+                borderRadius: BorderRadius.circular(4),
+                child: Image.asset(
+                  'assets/images/logo.png',
+                  fit: BoxFit.contain,
+                  errorBuilder: (context, error, stackTrace) => const Icon(
+                    Icons.security,
+                    color: AppTheme.primary,
+                    size: 20,
+                  ),
+                ),
+              ),
             ),
-            const SizedBox(width: 8),
+            const SizedBox(width: 10),
             const Flexible(
               child: Text(
                 'Campus Lost & Found',
