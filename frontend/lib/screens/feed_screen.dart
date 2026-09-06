@@ -1,8 +1,11 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../api_service.dart';
 import '../app_theme.dart';
 import '../claim_sheet.dart';
 import '../models.dart';
+import '../supabase_config.dart';
 
 class FeedScreen extends StatefulWidget {
   final VoidCallback? onRequestReportItem;
@@ -23,6 +26,9 @@ class _FeedScreenState extends State<FeedScreen> {
   bool _isLoading = true;
   String? _errorMessage;
 
+  RealtimeChannel? _itemsChannel;
+  Timer? _debounceTimer;
+
   final List<String> _categories = [
     'All',
     'Electronics',
@@ -38,19 +44,40 @@ class _FeedScreenState extends State<FeedScreen> {
   void initState() {
     super.initState();
     _fetchItems();
+    _subscribeToRealtime();
+  }
+
+  void _subscribeToRealtime() {
+    _itemsChannel = apiService.subscribeToTable(
+      table: SupabaseConfig.tableItems,
+      onData: (_) => _debouncedRefresh(),
+    );
+  }
+
+  void _debouncedRefresh() {
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+      if (mounted) {
+        _fetchItems(silent: true);
+      }
+    });
   }
 
   @override
   void dispose() {
+    _debounceTimer?.cancel();
+    if (_itemsChannel != null) apiService.unsubscribe(_itemsChannel!);
     _searchController.dispose();
     super.dispose();
   }
 
-  Future<void> _fetchItems() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
-    });
+  Future<void> _fetchItems({bool silent = false}) async {
+    if (!silent) {
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
+    }
 
     try {
       final data = await apiService.listPublicItems(
@@ -66,10 +93,12 @@ class _FeedScreenState extends State<FeedScreen> {
       }
     } catch (e) {
       if (mounted) {
-        setState(() {
-          _errorMessage = e.toString();
-          _isLoading = false;
-        });
+        if (!silent) {
+          setState(() {
+            _errorMessage = e.toString();
+            _isLoading = false;
+          });
+        }
       }
     }
   }

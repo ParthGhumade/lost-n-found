@@ -1,7 +1,10 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../api_service.dart';
 import '../app_theme.dart';
 import '../models.dart';
+import '../supabase_config.dart';
 import '../widgets/mutual_contact_modal.dart';
 import '../widgets/photo_review_modal.dart';
 
@@ -19,17 +22,46 @@ class _MyClaimsScreenState extends State<MyClaimsScreen> {
   bool _isLoading = true;
   String? _errorMessage;
 
+  RealtimeChannel? _claimsChannel;
+  Timer? _debounceTimer;
+
   @override
   void initState() {
     super.initState();
     _fetchClaims();
+    _subscribeToRealtime();
   }
 
-  Future<void> _fetchClaims() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
+  void _subscribeToRealtime() {
+    _claimsChannel = apiService.subscribeToTable(
+      table: SupabaseConfig.tableClaims,
+      onData: (_) => _debouncedRefresh(),
+    );
+  }
+
+  void _debouncedRefresh() {
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+      if (mounted) {
+        _fetchClaims(silent: true);
+      }
     });
+  }
+
+  @override
+  void dispose() {
+    _debounceTimer?.cancel();
+    if (_claimsChannel != null) apiService.unsubscribe(_claimsChannel!);
+    super.dispose();
+  }
+
+  Future<void> _fetchClaims({bool silent = false}) async {
+    if (!silent) {
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
+    }
 
     try {
       final data = await apiService.listMyClaims();
@@ -41,10 +73,12 @@ class _MyClaimsScreenState extends State<MyClaimsScreen> {
       }
     } catch (e) {
       if (mounted) {
-        setState(() {
-          _errorMessage = e.toString();
-          _isLoading = false;
-        });
+        if (!silent) {
+          setState(() {
+            _errorMessage = e.toString();
+            _isLoading = false;
+          });
+        }
       }
     }
   }

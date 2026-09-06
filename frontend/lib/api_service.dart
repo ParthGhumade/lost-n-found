@@ -7,9 +7,14 @@ import 'supabase_config.dart';
 /// Service class encapsulating all Lost & Found API operations.
 /// Implements the contracts specified in docs/apis.md
 class ApiService {
-  final SupabaseClient _client;
+  final SupabaseClient? _injectedClient;
 
-  ApiService([SupabaseClient? client]) : _client = client ?? Supabase.instance.client;
+  ApiService([SupabaseClient? client]) : _injectedClient = client;
+
+  SupabaseClient get _client {
+    if (_injectedClient != null) return _injectedClient!;
+    return Supabase.instance.client;
+  }
 
   String? get currentUserId => _client.auth.currentUser?.id;
 
@@ -362,6 +367,56 @@ class ApiService {
     );
 
     return MutualContactExchange.fromJson(response as Map<String, dynamic>);
+  }
+
+  // ==========================================
+  // 6. REALTIME SUBSCRIPTIONS
+  // ==========================================
+
+  /// Checks if Supabase client is initialized and ready for realtime.
+  bool get isRealtimeAvailable {
+    try {
+      // Accessing Supabase.instance will throw AssertionError if not initialized
+      final _ = Supabase.instance;
+      return true;
+    } catch (_) {
+      return false;
+    }
+  }
+
+  /// Subscribe to Postgres change events (INSERT, UPDATE, DELETE) on a table.
+  RealtimeChannel? subscribeToTable({
+    required String table,
+    required void Function(PostgresChangePayload payload) onData,
+  }) {
+    if (!isRealtimeAvailable) {
+      return null;
+    }
+
+    try {
+      final channelName = 'public:${table}_${DateTime.now().microsecondsSinceEpoch}';
+      return _client
+          .channel(channelName)
+          .onPostgresChanges(
+            event: PostgresChangeEvent.all,
+            schema: 'public',
+            table: table,
+            callback: onData,
+          )
+          .subscribe();
+    } catch (_) {
+      return null;
+    }
+  }
+
+  /// Unsubscribe and remove a realtime channel to release resources.
+  Future<void> unsubscribe(RealtimeChannel? channel) async {
+    if (channel == null) return;
+    try {
+      await _client.removeChannel(channel);
+    } catch (_) {
+      // Ignored if client is already disconnected
+    }
   }
 }
 

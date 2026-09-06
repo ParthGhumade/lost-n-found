@@ -6,6 +6,7 @@ import 'package:frontend/main.dart';
 import 'package:frontend/models.dart';
 import 'package:frontend/screens/feed_screen.dart';
 import 'package:frontend/screens/my_claims_screen.dart';
+import 'package:frontend/screens/my_listings_screen.dart';
 import 'package:frontend/screens/profile_screen.dart';
 import 'package:frontend/screens/report_item_screen.dart';
 import 'package:frontend/widgets/mutual_contact_modal.dart';
@@ -247,6 +248,16 @@ void main() {
 
       expect(tester.takeException(), isNull);
       expect(find.text('Contact Exchange'), findsOneWidget);
+    });
+
+    testWidgets('MyListingsScreen renders and mounts realtime channels safely', (WidgetTester tester) async {
+      await tester.pumpWidget(MaterialApp(
+        theme: AppTheme.lightTheme,
+        home: const MyListingsScreen(),
+      ));
+
+      expect(tester.takeException(), isNull);
+      expect(find.text('My Reported Items'), findsOneWidget);
     });
   });
 }

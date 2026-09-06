@@ -1,7 +1,10 @@
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
 import '../api_service.dart';
 import '../app_theme.dart';
 import '../models.dart';
+import '../supabase_config.dart';
 import '../widgets/mutual_contact_modal.dart';
 
 class MyListingsScreen extends StatefulWidget {
@@ -22,17 +25,52 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
   final Map<String, bool> _expandedItems = {};
   final Map<String, bool> _loadingClaims = {};
 
+  RealtimeChannel? _claimsChannel;
+  RealtimeChannel? _itemsChannel;
+  Timer? _debounceTimer;
+
   @override
   void initState() {
     super.initState();
     _fetchListings();
+    _subscribeToRealtime();
   }
 
-  Future<void> _fetchListings() async {
-    setState(() {
-      _isLoading = true;
-      _errorMessage = null;
+  void _subscribeToRealtime() {
+    _claimsChannel = apiService.subscribeToTable(
+      table: SupabaseConfig.tableClaims,
+      onData: (_) => _debouncedRefresh(),
+    );
+    _itemsChannel = apiService.subscribeToTable(
+      table: SupabaseConfig.tableItems,
+      onData: (_) => _debouncedRefresh(),
+    );
+  }
+
+  void _debouncedRefresh() {
+    _debounceTimer?.cancel();
+    _debounceTimer = Timer(const Duration(milliseconds: 300), () {
+      if (mounted) {
+        _fetchListings(silent: true);
+      }
     });
+  }
+
+  @override
+  void dispose() {
+    _debounceTimer?.cancel();
+    if (_claimsChannel != null) apiService.unsubscribe(_claimsChannel!);
+    if (_itemsChannel != null) apiService.unsubscribe(_itemsChannel!);
+    super.dispose();
+  }
+
+  Future<void> _fetchListings({bool silent = false}) async {
+    if (!silent) {
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
+    }
 
     try {
       final data = await apiService.listMyListings();
@@ -51,10 +89,12 @@ class _MyListingsScreenState extends State<MyListingsScreen> {
       }
     } catch (e) {
       if (mounted) {
-        setState(() {
-          _errorMessage = e.toString();
-          _isLoading = false;
-        });
+        if (!silent) {
+          setState(() {
+            _errorMessage = e.toString();
+            _isLoading = false;
+          });
+        }
       }
     }
   }
